@@ -8,25 +8,55 @@
 
 #import "PDFDocument.h"
 
+#import "PDFLexicalAnalyzer.h"
+#import "PDFComment.h"
+#import "PDFObject.h"
+#import "PDFXRex.h"
+
+#define ReturnError(state, message)\
+    {\
+        _errorMessage = message;\
+        return state;\
+    }
+
+#define ErrorState(message)\
+    {\
+        _errorMessage = message;\
+        state = ERROR_STATE;\
+    }
+
 enum ParserStates {
     ERROR_STATE = -1,
-    BEGIN_STATE = 0,
-    FILL_VERSION_STATE,
-    SEARCH_NEXT_PDF_STRUCTURE_STATE,
-    NEXT_PDF_STRUCTURE_STATE,
-    IN_PDF_COMMENT_STATE,
-    IN_PDF_OBJECT_STATE,
-    DEFAULT_STATE,
+    IN_PDF_HEADER_STATE = 0,
+    IN_PDF_BODY_STATE,
+    IN_XREF_HEADER_STATE,
+    IN_OBJECT_HEADER_WAIT_SECOND_NUMBER_STATE,
+    IN_OBJECT_HEADER_WAIT_WORD_OBJ_STATE,
+    IN_OBJECT_BODY_STATE,
+    IN_DICTIONARY_WAIT_KEY_STATE,
+    IN_DICTIONARY_WAIT_VALUE_STATE,
+    IN_OBJECT_WAIT_END_STATE,
 };
 
-int isBlankSymbol(char ch)
+static int isLexemeComment(const char* lexeme)
 {
-    return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t';
+    return lexeme && lexeme[0]=='%';
 }
 
-int isDigitSymbol(char ch)
+static int isLexemeNumber(const char* lexeme, NSUInteger len)
 {
-    return '0' <= ch && ch <= '9';
+    NSUInteger i = 0;
+    for (; i < len; ++i) {
+        if (isnumber(lexeme[i])) {
+            break;
+        }
+    }
+    return i == len;
+}
+
+static int isLexemeName(const char* lexeme)
+{
+    return lexeme && lexeme[0] == '\\';
 }
 
 const char* strblock(const char* p, int(^func)(char ch))
@@ -36,20 +66,21 @@ const char* strblock(const char* p, int(^func)(char ch))
     return p;
 }
 
+@interface PDFDocument()
+{
+    NSMutableArray *_pdfNodes;
+}
+@end
+
 @implementation PDFDocument
 
 - (id)initWithData:(NSData*)data
 {
     if (self = [super init]) {
         _version = @"";
+        _pdfNodes = [[NSMutableArray alloc] init];
         
-        char *buffer = malloc(data.length + 1);
-        memcpy(buffer, data.bytes, data.length);
-        buffer[data.length] = 0;
-        NSData *dataWithNull = [NSData dataWithBytes:buffer length:data.length + 1];
-        free(buffer);
-        
-        [self parseData:dataWithNull];
+        [self parseData:data];
         
         return self;
     }
@@ -66,232 +97,132 @@ const char* strblock(const char* p, int(^func)(char ch))
     return _errorMessage;
 }
 
-- (BOOL)isBlankSymbol:(char)symbol
-{
-    return symbol == ' ' || symbol == '\t' || symbol == '\r' || symbol == '\n';
-}
-
-- (BOOL)isDigitSymbol:(char)symbol
-{
-    return '0' <= symbol && symbol <= '9';
-}
-
 - (void)parseData:(NSData*)data
 {
-    enum ParserStates state = BEGIN_STATE;
+    enum ParserStates state = IN_PDF_HEADER_STATE;
+    enum PDFLexemeTypes type = PDF_UNKNOWN_LEXEME;
     
-    if (data.length < 5) {
-        _errorMessage = @"Too short file";
-        return;
-    }
+    PDFLexicalAnalyzer *pdfLexicalAnalyzer = [[PDFLexicalAnalyzer alloc] initWithData:data];
+    NSUInteger len = 0;
     
-    NSUInteger i = 0;
+    PDFObject *pdfObject = [PDFObject new];
+    NSString *key = @"";
     
-    while (i < data.length && _errorMessage == nil) {
+    for (const char *lexeme = [pdfLexicalAnalyzer nextLexeme:&len type:&type]; lexeme && state != ERROR_STATE; lexeme = [pdfLexicalAnalyzer nextLexeme:&len type:&type]) {
+        
         switch (state) {
-            case BEGIN_STATE:
-                state = [self handleBeginState:data idx:&i];
+            case IN_PDF_HEADER_STATE:
+                // Это коментарий
+                if (isLexemeComment(lexeme)) {
+                    state = [self parseVersionInLexeme:lexeme len:len];
+                } else {
+                    ErrorState(@"PDF version not found");
+                }
                 break;
                 
-            case FILL_VERSION_STATE:
-                state = [self handleVersionState:data idx:&i];
+            case IN_PDF_BODY_STATE:
+                if (isLexemeComment(lexeme)) {
+                    [_pdfNodes addObject:[[PDFComment alloc] initWithString:[NSData dataWithBytes:lexeme length:len]]];
+                } else if (len == 4 && strncmp(lexeme, "xref", len) == 0) {
+                    state = IN_XREF_HEADER_STATE;
+                } else if (isLexemeNumber(lexeme, len)) {
+                    state = IN_OBJECT_HEADER_WAIT_SECOND_NUMBER_STATE;
+                    pdfObject.firstNumber = [self lexemeToNSNumber:lexeme len:len];
+                } else {
+                    ErrorState(@"Brocken pdf body");
+                }
                 break;
                 
-            case SEARCH_NEXT_PDF_STRUCTURE_STATE:
-                state = [self handleSearchNextPDFStructureState:data idx:&i];
+            case IN_XREF_HEADER_STATE:
                 break;
                 
-            case NEXT_PDF_STRUCTURE_STATE:
-                state = [self handleNextPDFStructureState:data idx:&i];
+            case IN_OBJECT_HEADER_WAIT_SECOND_NUMBER_STATE:
+                if (isLexemeNumber(lexeme, len)) {
+                    pdfObject.secondNumber = [self lexemeToNSNumber:lexeme len:len];
+                    state = IN_OBJECT_HEADER_WAIT_WORD_OBJ_STATE;
+                } else {
+                    ErrorState(@"Failed to read second number in object's header");
+                }
                 break;
                 
-            case IN_PDF_COMMENT_STATE:
-                state = [self handleInPDFCommentState:data idx:&i];
+            case IN_OBJECT_HEADER_WAIT_WORD_OBJ_STATE:
+                if (len == 3 && strncmp(lexeme, "obj", len) == 0) {
+                    state = IN_OBJECT_BODY_STATE;
+                } else {
+                    ErrorState(@"World 'obj' not founded");
+                }
                 break;
                 
-            case IN_PDF_OBJECT_STATE:
-                state = [self handleInPDFObjectState:data idx:&i];
+            case IN_OBJECT_BODY_STATE:
+                if (len == 2 && strncmp(lexeme, "<<", len) == 0) {
+                    pdfObject.value = [NSMutableDictionary dictionary];
+                    state = IN_DICTIONARY_WAIT_KEY_STATE;
+                } else if (isLexemeNumber(lexeme, len)) {
+                    pdfObject.value = [NSNumber numberWithInteger:[self lexemeToNSNumber:lexeme len:len]];
+                    state = IN_OBJECT_WAIT_END_STATE;
+                } 
+                else {
+                    ErrorState(@"Unknown object type");
+                }
+                break;
+                
+            case IN_OBJECT_WAIT_END_STATE:
+                if (len == 6 && strncmp(lexeme, "endobj", len) == 0) {
+                    NSLog(@"%@", pdfObject);
+                    state = IN_PDF_BODY_STATE;
+                    [pdfObject release];
+                    pdfObject = [PDFObject new];
+                } else {
+                    ErrorState(@"Word endobj not found");
+                }
+                break;
+                
+            case IN_DICTIONARY_WAIT_KEY_STATE:
+                if (isLexemeName(lexeme)) {
+                    key = [[NSString alloc] initWithData:[NSData dataWithBytes:lexeme length:len] encoding:NSASCIIStringEncoding];
+                    state = IN_DICTIONARY_WAIT_VALUE_STATE;
+                } else {
+                    ErrorState(@"Bad key type");
+                }
+                break;
+                
+            case IN_DICTIONARY_WAIT_VALUE_STATE:
+                if (isLexemeNumber(lexeme, len)) {
+                    ((NSMutableDictionary*)pdfObject.value)[key] = [NSNumber numberWithInteger:[self lexemeToNSNumber:lexeme len:len]];
+                    state = IN_DICTIONARY_WAIT_KEY_STATE;
+                }
                 break;
                 
             default:
-                ++i;
                 break;
         }
     }
 }
 
-- (enum ParserStates)handleBeginState:(NSData*)data idx:(NSUInteger*)idx
+- (NSUInteger)lexemeToNSNumber:(const char*)lexeme len:(NSUInteger)len
 {
-    const char *rawData = (const char *)[data bytes];
-    
-    NSUInteger i = *idx;
-    if(rawData[i] == '%') {
-        char buffer[] = {rawData[i], rawData[i+1], rawData[i+2], rawData[i+3], rawData[i+4], 0};
-        if (strncmp("%PDF-", buffer, sizeof(buffer) / sizeof(char))) {
-            _errorMessage = @"Failed to read pdf header";
-            return ERROR_STATE;
-        }
-        *idx += sizeof(buffer) - 1;
-        return FILL_VERSION_STATE;
-    }
-    _errorMessage = @"File must begin with '%' symbol";
-    return ERROR_STATE;
+    return [[[NSString alloc] initWithData:[NSData dataWithBytes:lexeme length:len] encoding:NSASCIIStringEncoding] integerValue];
 }
 
-- (enum ParserStates)handleVersionState:(NSData*)data idx:(NSUInteger*)idx
+- (enum ParserStates)parseVersionInLexeme:(const char *)lexeme len:(NSUInteger)len
 {
-    const char *rawData = (const char *)[data bytes];
-    
-    NSUInteger i = *idx;
-    for (; rawData[i] != '\r' && rawData[i] != '\n'; ++i) {
-        char buffer[] = {rawData[i], 0};
-        _version = [_version stringByAppendingString:@(buffer)];
+    if (len < 5) {
+        ReturnError(ERROR_STATE, @"Failed to parse pdf header");
     }
     
-    *idx = i;
-    return SEARCH_NEXT_PDF_STRUCTURE_STATE;
-}
-
-- (enum ParserStates)handleSearchNextPDFStructureState:(NSData*)data idx:(NSUInteger*)idx
-{
-    const char *rawData = (const char *)[data bytes];
-    
-    NSUInteger i = *idx;
-    for (; [self isBlankSymbol:rawData[i]]; ++i) {
-    }
-
-    *idx = i;
-    return NEXT_PDF_STRUCTURE_STATE;
-}
-
-- (enum ParserStates)handleNextPDFStructureState:(NSData*)data idx:(NSUInteger*)idx
-{
-    const char *rawData = (const char *)[data bytes];
-    
-    NSUInteger i = *idx;
-    enum ParserStates state = ERROR_STATE;
-    
-    switch (rawData[i]) {
-        case '%':
-            state = IN_PDF_COMMENT_STATE;
-            ++i;
-            break;
-            
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            state = IN_PDF_OBJECT_STATE;
-            break;
-            
-        default:
-            state = DEFAULT_STATE;
-            break;
-    }
-    *idx = i;
-    return state;
-}
-
-- (enum ParserStates)handleInPDFCommentState:(NSData*)data idx:(NSUInteger*)idx
-{
-    const char *rawData = (const char*)[data bytes];
-    NSUInteger i = *idx;
-    
-    NSUInteger endOfCommentIdx = i;
-    while (rawData[endOfCommentIdx] != '\r' && rawData[endOfCommentIdx] != '\n') {
-        ++endOfCommentIdx;
-    }
-    char* buffer = malloc((endOfCommentIdx - i) + 1);
-    memcpy(buffer, &rawData[i], (endOfCommentIdx - i) + 1);
-    buffer[endOfCommentIdx - i] = 0;
-    NSString* comment = [NSString stringWithCString:buffer encoding:NSASCIIStringEncoding];
-    NSLog(@"%@", comment);
-    i = endOfCommentIdx;
-    
-    *idx = i;
-    return SEARCH_NEXT_PDF_STRUCTURE_STATE;
-}
-
-- (enum ParserStates)handleInPDFObjectState:(NSData*)data idx:(NSUInteger*)idx
-{
-    const char *rawData = (const char*)[data bytes];
-    
-    const char *beginFirstNum = &rawData[*idx];
-    const char *endFirstNum   = strblock(beginFirstNum, ^(char ch) {
-        return isDigitSymbol(ch);
-    });
-    if (endFirstNum == 0) {
-        _errorMessage = @"Unexpected end of file";
-        return ERROR_STATE;
+    if (strncmp("%PDF-", lexeme, 5)) {
+        ReturnError(ERROR_STATE, @"Failed to parse pdf header");
     }
     
-    // Получим начао второго числа объекта
-    const char *beginSecondNum = strblock(endFirstNum, ^(char ch) {
-        return isBlankSymbol(ch);
-    });
-    if (beginSecondNum == 0) {
-        _errorMessage = @"Unexpected end of file";
-        return ERROR_STATE;
-    }
-    if (isDigitSymbol(*beginSecondNum) == NO) {
-        _errorMessage = @"It was not digit";
-        return ERROR_STATE;
-    }
+    lexeme += 5;
+    len -= 5;
     
-    // Получим конец второго числа оъекта
-    const char *endSecondNum = strblock(beginSecondNum, ^(char ch) {
-        return isDigitSymbol(ch);
-    });
-    if (endSecondNum == 0) {
-        _errorMessage = @"Unexpected end of file";
-        return ERROR_STATE;
-    }
+    _version = [[NSString alloc] initWithData:[NSData dataWithBytes:lexeme length:len] encoding:NSASCIIStringEncoding];
     
-    const char *beginObj = strblock(endSecondNum, ^(char ch) {
-        return isBlankSymbol(ch);
-    });
-    if (beginObj == 0) {
-        _errorMessage = @"Unexpected end of file";
-        return ERROR_STATE;
-    }
-    
-    char buffer[] = {beginObj[0], beginObj[1], beginObj[2], 0};
-    if (strncmp(buffer, "obj", sizeof(buffer))) {
-        _errorMessage = @"It was not object";
-        return ERROR_STATE;
-    }
-    
-    char *buffer1 = malloc(endFirstNum - beginFirstNum + 1);
-    char *buffer2 = malloc(endSecondNum - beginSecondNum + 1);
-    memcpy(buffer1, beginFirstNum, endFirstNum - beginFirstNum);
-    memcpy(buffer2, beginSecondNum, endSecondNum - beginSecondNum);
-    free(buffer1);
-    free(buffer2);
-    
-    const char* objBodyBegin = beginObj + sizeof(buffer) - 1;
-    
-    const char *endObj = strstr(objBodyBegin, "endobj");
-    if (endObj == 0) {
-        _errorMessage = @"End of object not found";
-        return ERROR_STATE;
-    }
-    
-    NSData *objectData = [NSData dataWithBytes:objBodyBegin length:endObj - objBodyBegin];
-    NSString *objBodyStr = [[NSString alloc] initWithData:objectData encoding:NSASCIIStringEncoding];
-    
-    NSLog(@"%@ %@ obj\r%@\rendobj", @(buffer1), @(buffer2), objBodyStr);
-    
-    *idx = endObj - rawData;
-    *idx += sizeof("endobj");
-    --(*idx);
-    
-    return SEARCH_NEXT_PDF_STRUCTURE_STATE;
+    return IN_PDF_BODY_STATE;
 }
 
 @end
+
+#undef ReturnError
+#undef ErrorState

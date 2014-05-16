@@ -25,7 +25,7 @@ int main(int argc, const char * argv[])
       //  NSString *version = @"";
       //  NSString *errorMessage = nil;
         
-        NSData *fileData = [NSData dataWithContentsOfFile:@"/Users/kozliappi/Desktop/test_1/test_in.pdf"];
+        NSData *fileData = [NSData dataWithContentsOfFile:@"/Users/demo/Documents/Projects/PDFCoolParser/test_in.pdf"];
         
         PDFDocument *document = [[PDFDocument alloc] initWithData:fileData];
         if ([document errorMessage]) {

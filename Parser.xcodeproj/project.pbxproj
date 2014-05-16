@@ -11,7 +11,25 @@
 		198DDE8C191E279B00B11929 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 198DDE8B191E279B00B11929 /* Foundation.framework */; };
 		198DDE8F191E279B00B11929 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 198DDE8E191E279B00B11929 /* main.m */; };
 		198DDE93191E279B00B11929 /* Parser.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 198DDE92191E279B00B11929 /* Parser.1 */; };
+		B4035DEF192236FE007ED64D /* PDFComment.m in Sources */ = {isa = PBXBuildFile; fileRef = B4035DEE192236FE007ED64D /* PDFComment.m */; };
+		B4035DF219223CAB007ED64D /* PDFObject.m in Sources */ = {isa = PBXBuildFile; fileRef = B4035DF119223CAB007ED64D /* PDFObject.m */; };
+		B4035DF519223CC2007ED64D /* PDFXRex.m in Sources */ = {isa = PBXBuildFile; fileRef = B4035DF419223CC2007ED64D /* PDFXRex.m */; };
+		B40CE98F19264926007C8E04 /* PDFLexicalAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CE98E19264926007C8E04 /* PDFLexicalAnalyzer.m */; };
+		B40CE99019264926007C8E04 /* PDFLexicalAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CE98E19264926007C8E04 /* PDFLexicalAnalyzer.m */; };
+		B40CEB8319256DC400064464 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B40CEB8219256DC400064464 /* XCTest.framework */; };
+		B40CEB8919256DC400064464 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B40CEB8719256DC400064464 /* InfoPlist.strings */; };
+		B40CEB8B19256DC400064464 /* Parser_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CEB8A19256DC400064464 /* Parser_Tests.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B40CEB8D19256DC400064464 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 198DDE80191E279B00B11929 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 198DDE87191E279B00B11929;
+			remoteInfo = Parser;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		198DDE86191E279B00B11929 /* CopyFiles */ = {
@@ -27,13 +45,27 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		192F1D25191E483800D98CB6 /* PDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFDocument.h; sourceTree = "<group>"; };
-		192F1D26191E483800D98CB6 /* PDFDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFDocument.m; sourceTree = "<group>"; };
+		192F1D25191E483800D98CB6 /* PDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PDFDocument.h; path = ../PDFDocument.h; sourceTree = "<group>"; };
+		192F1D26191E483800D98CB6 /* PDFDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PDFDocument.m; path = ../PDFDocument.m; sourceTree = "<group>"; };
 		198DDE88191E279B00B11929 /* Parser */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Parser; sourceTree = BUILT_PRODUCTS_DIR; };
 		198DDE8B191E279B00B11929 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		198DDE8E191E279B00B11929 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		198DDE91191E279B00B11929 /* Parser-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Parser-Prefix.pch"; sourceTree = "<group>"; };
 		198DDE92191E279B00B11929 /* Parser.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Parser.1; sourceTree = "<group>"; };
+		B4035DED192236FE007ED64D /* PDFComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFComment.h; sourceTree = "<group>"; };
+		B4035DEE192236FE007ED64D /* PDFComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFComment.m; sourceTree = "<group>"; };
+		B4035DF019223CAB007ED64D /* PDFObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFObject.h; sourceTree = "<group>"; };
+		B4035DF119223CAB007ED64D /* PDFObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFObject.m; sourceTree = "<group>"; };
+		B4035DF319223CC2007ED64D /* PDFXRex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFXRex.h; sourceTree = "<group>"; };
+		B4035DF419223CC2007ED64D /* PDFXRex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFXRex.m; sourceTree = "<group>"; };
+		B40CE98D19264926007C8E04 /* PDFLexicalAnalyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFLexicalAnalyzer.h; sourceTree = "<group>"; };
+		B40CE98E19264926007C8E04 /* PDFLexicalAnalyzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFLexicalAnalyzer.m; sourceTree = "<group>"; };
+		B40CEB8119256DC400064464 /* Parser Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Parser Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B40CEB8219256DC400064464 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		B40CEB8619256DC400064464 /* Parser Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Parser Tests-Info.plist"; sourceTree = "<group>"; };
+		B40CEB8819256DC400064464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B40CEB8A19256DC400064464 /* Parser_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Parser_Tests.m; sourceTree = "<group>"; };
+		B40CEB8C19256DC400064464 /* Parser Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Parser Tests-Prefix.pch"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,15 +77,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B40CEB7E19256DC400064464 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B40CEB8319256DC400064464 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		198DDE7F191E279B00B11929 = {
 			isa = PBXGroup;
 			children = (
-				192F1D25191E483800D98CB6 /* PDFDocument.h */,
-				192F1D26191E483800D98CB6 /* PDFDocument.m */,
 				198DDE8D191E279B00B11929 /* Parser */,
+				B40CEB8419256DC400064464 /* Parser Tests */,
 				198DDE8A191E279B00B11929 /* Frameworks */,
 				198DDE89191E279B00B11929 /* Products */,
 			);
@@ -63,6 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				198DDE88191E279B00B11929 /* Parser */,
+				B40CEB8119256DC400064464 /* Parser Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -71,6 +111,7 @@
 			isa = PBXGroup;
 			children = (
 				198DDE8B191E279B00B11929 /* Foundation.framework */,
+				B40CEB8219256DC400064464 /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -78,6 +119,16 @@
 		198DDE8D191E279B00B11929 /* Parser */ = {
 			isa = PBXGroup;
 			children = (
+				B40CE98D19264926007C8E04 /* PDFLexicalAnalyzer.h */,
+				B40CE98E19264926007C8E04 /* PDFLexicalAnalyzer.m */,
+				B4035DF319223CC2007ED64D /* PDFXRex.h */,
+				B4035DF419223CC2007ED64D /* PDFXRex.m */,
+				B4035DF019223CAB007ED64D /* PDFObject.h */,
+				B4035DF119223CAB007ED64D /* PDFObject.m */,
+				B4035DED192236FE007ED64D /* PDFComment.h */,
+				B4035DEE192236FE007ED64D /* PDFComment.m */,
+				192F1D25191E483800D98CB6 /* PDFDocument.h */,
+				192F1D26191E483800D98CB6 /* PDFDocument.m */,
 				198DDE8E191E279B00B11929 /* main.m */,
 				198DDE92191E279B00B11929 /* Parser.1 */,
 				198DDE90191E279B00B11929 /* Supporting Files */,
@@ -89,6 +140,25 @@
 			isa = PBXGroup;
 			children = (
 				198DDE91191E279B00B11929 /* Parser-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		B40CEB8419256DC400064464 /* Parser Tests */ = {
+			isa = PBXGroup;
+			children = (
+				B40CEB8A19256DC400064464 /* Parser_Tests.m */,
+				B40CEB8519256DC400064464 /* Supporting Files */,
+			);
+			path = "Parser Tests";
+			sourceTree = "<group>";
+		};
+		B40CEB8519256DC400064464 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				B40CEB8619256DC400064464 /* Parser Tests-Info.plist */,
+				B40CEB8719256DC400064464 /* InfoPlist.strings */,
+				B40CEB8C19256DC400064464 /* Parser Tests-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -113,6 +183,24 @@
 			productReference = 198DDE88191E279B00B11929 /* Parser */;
 			productType = "com.apple.product-type.tool";
 		};
+		B40CEB8019256DC400064464 /* Parser Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B40CEB9119256DC400064464 /* Build configuration list for PBXNativeTarget "Parser Tests" */;
+			buildPhases = (
+				B40CEB7D19256DC400064464 /* Sources */,
+				B40CEB7E19256DC400064464 /* Frameworks */,
+				B40CEB7F19256DC400064464 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B40CEB8E19256DC400064464 /* PBXTargetDependency */,
+			);
+			name = "Parser Tests";
+			productName = "Parser Tests";
+			productReference = B40CEB8119256DC400064464 /* Parser Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -121,6 +209,11 @@
 			attributes = {
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = Ptenster;
+				TargetAttributes = {
+					B40CEB8019256DC400064464 = {
+						TestTargetID = 198DDE87191E279B00B11929;
+					};
+				};
 			};
 			buildConfigurationList = 198DDE83191E279B00B11929 /* Build configuration list for PBXProject "Parser" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -135,21 +228,65 @@
 			projectRoot = "";
 			targets = (
 				198DDE87191E279B00B11929 /* Parser */,
+				B40CEB8019256DC400064464 /* Parser Tests */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B40CEB7F19256DC400064464 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B40CEB8919256DC400064464 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		198DDE84191E279B00B11929 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4035DEF192236FE007ED64D /* PDFComment.m in Sources */,
+				B40CE98F19264926007C8E04 /* PDFLexicalAnalyzer.m in Sources */,
+				B4035DF519223CC2007ED64D /* PDFXRex.m in Sources */,
 				198DDE8F191E279B00B11929 /* main.m in Sources */,
+				B4035DF219223CAB007ED64D /* PDFObject.m in Sources */,
 				192F1D27191E483800D98CB6 /* PDFDocument.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B40CEB7D19256DC400064464 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B40CEB8B19256DC400064464 /* Parser_Tests.m in Sources */,
+				B40CE99019264926007C8E04 /* PDFLexicalAnalyzer.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B40CEB8E19256DC400064464 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 198DDE87191E279B00B11929 /* Parser */;
+			targetProxy = B40CEB8D19256DC400064464 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		B40CEB8719256DC400064464 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B40CEB8819256DC400064464 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		198DDE94191E279B00B11929 /* Debug */ = {
@@ -225,6 +362,7 @@
 		198DDE97191E279B00B11929 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Parser/Parser-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -234,9 +372,46 @@
 		198DDE98191E279B00B11929 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Parser/Parser-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		B40CEB8F19256DC400064464 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Parser Tests/Parser Tests-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "Parser Tests/Parser Tests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		B40CEB9019256DC400064464 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Parser Tests/Parser Tests-Prefix.pch";
+				INFOPLIST_FILE = "Parser Tests/Parser Tests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
 		};
@@ -257,6 +432,15 @@
 			buildConfigurations = (
 				198DDE97191E279B00B11929 /* Debug */,
 				198DDE98191E279B00B11929 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B40CEB9119256DC400064464 /* Build configuration list for PBXNativeTarget "Parser Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B40CEB8F19256DC400064464 /* Debug */,
+				B40CEB9019256DC400064464 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
