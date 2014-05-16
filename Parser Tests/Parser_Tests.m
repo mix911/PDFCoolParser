@@ -34,7 +34,7 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
                         "/$$\r"
                         "/@pattern\r"
                         "/The_Key_of_F#23_Minor\r"
-                        "<<obj endobj>>[xref startxref]/end stream endstream true false trailer";
+                        "3<<obj 123 endobj>>[xref startxref]/end stream ???? endstream true false trailer";
 
 @interface Parser_Tests : XCTestCase
 {
@@ -147,8 +147,10 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
     [self subTestLexicalAnalyzerLexeme:"/$$" type:PDF_NAME_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"/@pattern" type:PDF_NAME_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"/The_Key_of_F#23_Minor" type:PDF_NAME_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"3" type:PDF_NUMBER_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"<<" type:PDF_OPEN_DICTIONARY_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"obj" type:PDF_OBJ_KEYWORD_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"123" type:PDF_NUMBER_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"endobj" type:PDF_ENDOBJ_KEYWORD_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:">>" type:PDF_CLOSE_DICTIONARY_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"[" type:PDF_OPEN_ARRAY_LEXEME_TYPE];
@@ -157,6 +159,7 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
     [self subTestLexicalAnalyzerLexeme:"]" type:PDF_CLOSE_ARRAY_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"/end" type:PDF_NAME_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"stream" type:PDF_STREAM_KEYWORD_LEXEME_TYPE];
+    [_pdfLexicalAnalyzer skipBytesByCount:5];
     [self subTestLexicalAnalyzerLexeme:"endstream" type:PDF_ENDSTREAM_KEYWORD_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"true" type:PDF_TRUE_KEYWORD_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"false" type:PDF_FALSE_KEYWORD_LEXEME_TYPE];

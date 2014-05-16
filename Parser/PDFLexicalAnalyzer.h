@@ -61,6 +61,11 @@ enum PDFLexemeTypes
  */
 @property (readonly) NSString *errorMessage;
 
+/**
+ * Пропустить count байт. Метод нужен для того, чтобы пропускать содержимое stream'ов.
+ * @param count Количество байт, которое нужно пропустить
+ * @return BOOL YES - если удалось переместить количество на заданное количество байт, в противном случае NO.
+ */
 - (BOOL)skipBytesByCount:(NSUInteger)count;
 
 @end
