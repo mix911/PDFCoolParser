@@ -13,6 +13,8 @@
 		B4035DEF192236FE007ED64D /* PDFComment.m in Sources */ = {isa = PBXBuildFile; fileRef = B4035DEE192236FE007ED64D /* PDFComment.m */; };
 		B4035DF219223CAB007ED64D /* PDFObject.m in Sources */ = {isa = PBXBuildFile; fileRef = B4035DF119223CAB007ED64D /* PDFObject.m */; };
 		B4035DF519223CC2007ED64D /* PDFXRex.m in Sources */ = {isa = PBXBuildFile; fileRef = B4035DF419223CC2007ED64D /* PDFXRex.m */; };
+		B40AE5FE19275B5E0078DCC6 /* PDFSyntaxAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = B40AE5FD19275B5E0078DCC6 /* PDFSyntaxAnalyzer.m */; };
+		B40AE5FF19275B5E0078DCC6 /* PDFSyntaxAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = B40AE5FD19275B5E0078DCC6 /* PDFSyntaxAnalyzer.m */; };
 		B40CE98F19264926007C8E04 /* PDFLexicalAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CE98E19264926007C8E04 /* PDFLexicalAnalyzer.m */; };
 		B40CE99019264926007C8E04 /* PDFLexicalAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CE98E19264926007C8E04 /* PDFLexicalAnalyzer.m */; };
 		B40CEB8319256DC400064464 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B40CEB8219256DC400064464 /* XCTest.framework */; };
@@ -55,6 +57,8 @@
 		B4035DF119223CAB007ED64D /* PDFObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFObject.m; sourceTree = "<group>"; };
 		B4035DF319223CC2007ED64D /* PDFXRex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFXRex.h; sourceTree = "<group>"; };
 		B4035DF419223CC2007ED64D /* PDFXRex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFXRex.m; sourceTree = "<group>"; };
+		B40AE5FC19275B5E0078DCC6 /* PDFSyntaxAnalyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFSyntaxAnalyzer.h; sourceTree = "<group>"; };
+		B40AE5FD19275B5E0078DCC6 /* PDFSyntaxAnalyzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFSyntaxAnalyzer.m; sourceTree = "<group>"; };
 		B40CE98D19264926007C8E04 /* PDFLexicalAnalyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFLexicalAnalyzer.h; sourceTree = "<group>"; };
 		B40CE98E19264926007C8E04 /* PDFLexicalAnalyzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFLexicalAnalyzer.m; sourceTree = "<group>"; };
 		B40CEB8119256DC400064464 /* Parser Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Parser Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -116,6 +120,8 @@
 		198DDE8D191E279B00B11929 /* Parser */ = {
 			isa = PBXGroup;
 			children = (
+				B40AE5FC19275B5E0078DCC6 /* PDFSyntaxAnalyzer.h */,
+				B40AE5FD19275B5E0078DCC6 /* PDFSyntaxAnalyzer.m */,
 				B40CE98D19264926007C8E04 /* PDFLexicalAnalyzer.h */,
 				B40CE98E19264926007C8E04 /* PDFLexicalAnalyzer.m */,
 				B4035DF319223CC2007ED64D /* PDFXRex.h */,
@@ -245,6 +251,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B40AE5FE19275B5E0078DCC6 /* PDFSyntaxAnalyzer.m in Sources */,
 				B4035DEF192236FE007ED64D /* PDFComment.m in Sources */,
 				B40CE98F19264926007C8E04 /* PDFLexicalAnalyzer.m in Sources */,
 				B4035DF519223CC2007ED64D /* PDFXRex.m in Sources */,
@@ -258,6 +265,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B40AE5FF19275B5E0078DCC6 /* PDFSyntaxAnalyzer.m in Sources */,
 				B40CEB8B19256DC400064464 /* Parser_Tests.m in Sources */,
 				B40CE99019264926007C8E04 /* PDFLexicalAnalyzer.m in Sources */,
 			);

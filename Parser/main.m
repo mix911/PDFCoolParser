@@ -11,19 +11,12 @@
 
 #import "PDFDocument.h"
 
-enum ParserStates {
-    BEGIN_STATE = 0,
-    FILL_VERSION_STATE,
-    DEFAULT_STATE,
-};
+#import "PDFSyntaxAnalyzer.h"
 
 int main(int argc, const char * argv[])
 {
 
     @autoreleasepool {
-        
-      //  NSString *version = @"";
-      //  NSString *errorMessage = nil;
         
         NSData *fileData = [NSData dataWithContentsOfFile:@"/Users/demo/Documents/Projects/PDFCoolParser/test_in.pdf"];
         
@@ -34,54 +27,6 @@ int main(int argc, const char * argv[])
         else {
             NSLog(@"%@", [document version]);
         }
-      /*
-        enum ParserStates state = BEGIN_STATE;
-        
-        const char* rawData = (const char*)[fileData bytes];
-        if (fileData.length < 5) {
-            return 1;
-        }
-        
-        NSUInteger i = 0;
-    
-        while (i < fileData.length) {
-            char ch = rawData[i];
-            
-            switch (state) {
-                case BEGIN_STATE:
-                    if(ch == '%') {
-                        char buffer[] = {rawData[i], rawData[i+1], rawData[i+2], rawData[i+3], rawData[i+4], 0};
-                        if (strncmp("%PDF-", buffer, sizeof(buffer) / sizeof(char))) {
-                            errorMessage = @"Failed to read pdf header";
-                        }
-                        i += sizeof(buffer) - 1;
-                        state = FILL_VERSION_STATE;
-                    }
-                    break;
-                    
-                case FILL_VERSION_STATE:
-                    for (; rawData[i] != '\r' && rawData[i] != '\n'; ++i) {
-                        char buffer[] = {rawData[i], 0};
-                        version = [version stringByAppendingString:@(buffer)];
-                    }
-                    state = DEFAULT_STATE;
-                    break;
-                default:
-                    ++i;
-                    break;
-            }
-            
-            if (errorMessage) {
-                break;
-            }
-        }
-        
-        if (errorMessage) {
-            NSLog(@"%@", errorMessage);
-        }
-        else {
-            NSLog(@"%@", version);
-        }*/
     }
     return 0;
 }
