@@ -10,7 +10,6 @@
 		192F1D27191E483800D98CB6 /* PDFDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 192F1D26191E483800D98CB6 /* PDFDocument.m */; };
 		198DDE8C191E279B00B11929 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 198DDE8B191E279B00B11929 /* Foundation.framework */; };
 		198DDE8F191E279B00B11929 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 198DDE8E191E279B00B11929 /* main.m */; };
-		198DDE93191E279B00B11929 /* Parser.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 198DDE92191E279B00B11929 /* Parser.1 */; };
 		B4035DEF192236FE007ED64D /* PDFComment.m in Sources */ = {isa = PBXBuildFile; fileRef = B4035DEE192236FE007ED64D /* PDFComment.m */; };
 		B4035DF219223CAB007ED64D /* PDFObject.m in Sources */ = {isa = PBXBuildFile; fileRef = B4035DF119223CAB007ED64D /* PDFObject.m */; };
 		B4035DF519223CC2007ED64D /* PDFXRex.m in Sources */ = {isa = PBXBuildFile; fileRef = B4035DF419223CC2007ED64D /* PDFXRex.m */; };
@@ -38,7 +37,6 @@
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
-				198DDE93191E279B00B11929 /* Parser.1 in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
@@ -51,7 +49,6 @@
 		198DDE8B191E279B00B11929 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		198DDE8E191E279B00B11929 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		198DDE91191E279B00B11929 /* Parser-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Parser-Prefix.pch"; sourceTree = "<group>"; };
-		198DDE92191E279B00B11929 /* Parser.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Parser.1; sourceTree = "<group>"; };
 		B4035DED192236FE007ED64D /* PDFComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFComment.h; sourceTree = "<group>"; };
 		B4035DEE192236FE007ED64D /* PDFComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFComment.m; sourceTree = "<group>"; };
 		B4035DF019223CAB007ED64D /* PDFObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFObject.h; sourceTree = "<group>"; };
@@ -130,7 +127,6 @@
 				192F1D25191E483800D98CB6 /* PDFDocument.h */,
 				192F1D26191E483800D98CB6 /* PDFDocument.m */,
 				198DDE8E191E279B00B11929 /* main.m */,
-				198DDE92191E279B00B11929 /* Parser.1 */,
 				198DDE90191E279B00B11929 /* Supporting Files */,
 			);
 			path = Parser;
