@@ -247,23 +247,47 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
                                                       [PDFValue numberValue:@1],
                                                       [PDFValue arrayValue:[NSMutableArray array]],
                                                       nil]]];
-    self subTestObject:326 :0 :[PDFValue dictionaryValue:
-                                []]
-    
     [self subTestObject:326
                        :0
                        :[PDFValue dictionaryValue:
-                         [NSMutableDictionary dictionaryWithDictionary:@{
-                                                                         @"/key1" : [PDFValue numberValue:@0],
-                                                                         @"/key2" : [PDFValue hexStringValue:@"<aBc3>"],
-                                                                         @"/key3" : [PDFValue stringValue:@"(Simple string)"],
-                                                                         @"/key4" : [PDFValue nameValue:@"/Name"],
-                                                                         @"/key5" : [PDFValue trueValue],
-                                                                         @"/key6" : [PDFValue falseValue],
-                                                                         @"/key7" : [PDFValue pdfRefValueWithObjectNumber:9 generatedNumber:3],
-                                                                         @"/key8" : [PDFValue nullValue],
-                                                                         @"/key9" : [PDFValue pdfRefValueWithObjectNumber:1 generatedNumber:2]
-                                                                         }]]];
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/key1" : [PDFValue pdfRefValueWithObjectNumber:1 generatedNumber:2],
+                            @"/key3" : [PDFValue stringValue:@"(ololo)"],
+                            @"/key2" : [PDFValue pdfRefValueWithObjectNumber:3 generatedNumber:4],
+                            @"/key4" : [PDFValue hexStringValue:@"<abc3>"]
+                            }]]];
+    [self subTestObject:326
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/key1" : [PDFValue numberValue:@0]
+                            }]]];
+    [self subTestObject:326
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/key1" : [PDFValue numberValue:@1],
+                            @"/key2" : [PDFValue numberValue:@2],
+                            @"/key3" : [PDFValue pdfRefValueWithObjectNumber:3 generatedNumber:4],
+                            @"/key4" : [PDFValue numberValue:@5]
+                            }]]];
+    [self subTestObject:326
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/key1" : [PDFValue dictionaryValue:
+                                         [NSMutableDictionary dictionaryWithDictionary:
+                                          @{
+                                            @"/key1" : [PDFValue stringValue:@"(ololo)"],
+                                            @"/key2" : [PDFValue arrayValue:[NSMutableArray arrayWithObjects:
+                                                                             [PDFValue dictionaryValue:[NSMutableDictionary dictionary]],
+                                                                             nil]]
+                                            }]]
+                            }]]];
 }
 
 @end

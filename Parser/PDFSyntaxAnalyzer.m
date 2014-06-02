@@ -264,6 +264,12 @@ enum PDFSyntaxAnalyzerStates
                         array = [NSMutableArray array];
                         pdfValue = [PDFValue arrayValue:array];
                         break;
+                    case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
+                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+                        [stack pushObject:@{@"value": pdfValue, @"type" : @0}];
+                        dictionary = [NSMutableDictionary dictionary];
+                        pdfValue = [PDFValue dictionaryValue:dictionary];
+                        break;
                     case PDF_NULL_KEYWORD_LEXEME:
                         [array addObject:[PDFValue nullValue]];
                         break;
@@ -279,7 +285,7 @@ enum PDFSyntaxAnalyzerStates
                                     [array addObject:tmp];
                                     state = IN_OBJECT_IN_ARRAY_STATE;
                                     break;
-                                    
+                                case 1:
                                 default:
                                     dictionary = (NSMutableDictionary*)pdfValue.value;
                                     dictionary[[stack top][@"key"]] = tmp;
@@ -300,7 +306,26 @@ enum PDFSyntaxAnalyzerStates
                         key = [self stringFromLexeme:lexeme len:len];
                         break;
                     case PDF_CLOSE_DICTIONARY_LEXEME_TYPE:
-                        state = IN_OBJECT_AFTER_VALUE_STATE;
+                        if (stack.count == 0) {
+                            state = IN_OBJECT_AFTER_VALUE_STATE;
+                        } else {
+                            PDFValue *tmp = pdfValue;
+                            pdfValue = [stack top][@"value"];
+                            switch ([[stack top][@"type"] intValue]) {
+                                case 0:
+                                    array = (NSMutableArray*)pdfValue.value;
+                                    [array addObject:tmp];
+                                    state = IN_OBJECT_IN_ARRAY_STATE;
+                                    break;
+                                case 1:
+                                default:
+                                    state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+                                    dictionary = (NSMutableDictionary*)pdfValue.value;
+                                    dictionary[[stack top][@"key"]] = tmp;
+                                    break;
+                            }
+                            [stack pop];
+                        }
                         break;
                     default:
                         ErrorState(@"Only name type can be dictionary keys");
@@ -341,6 +366,19 @@ enum PDFSyntaxAnalyzerStates
                     case PDF_NULL_KEYWORD_LEXEME:
                         dictionary[key] = [PDFValue nullValue];
                         state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+                        break;
+                    case PDF_OPEN_ARRAY_LEXEME_TYPE:
+                        [stack pushObject:@{@"key": key, @"value" : pdfValue, @"type" : @1}];
+                        state = IN_OBJECT_IN_ARRAY_STATE;
+                        array = [NSMutableArray array];
+                        pdfValue = [PDFValue arrayValue:array];
+                        break;
+                    case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
+                        [stack pushObject:@{@"key" : key, @"value" : pdfValue, @"type" : @1}];
+                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+                        dictionary = [NSMutableDictionary dictionary];
+                        pdfValue = [PDFValue dictionaryValue:dictionary];
+                        break;
                     default:
                         break;
                 }
@@ -350,6 +388,34 @@ enum PDFSyntaxAnalyzerStates
                     case PDF_UINT_NUMBER_TYPE:
                         state = IN_OBJECT_IN_DICTIONARY_NEED_R_STATE;
                         refGeneratedNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
+                        break;
+                    case PDF_NAME_LEXEME_TYPE:
+                        dictionary[key] = [PDFValue numberValue:@(refObjectNumber)];
+                        key = [self stringFromLexeme:lexeme len:len];
+                        state = IN_OBJECT_IN_DICTIONARY_WAIT_VALUE_STATE;
+                        break;
+                    case PDF_CLOSE_DICTIONARY_LEXEME_TYPE:
+                        dictionary[key] = [PDFValue numberValue:@(refObjectNumber)];
+                        if (stack.count == 0) {
+                            state = IN_OBJECT_AFTER_VALUE_STATE;
+                        } else {
+                            PDFValue *tmp = pdfValue;
+                            pdfValue = [stack top][@"value"];
+                            switch ([[stack top][@"type"] intValue]) {
+                                case 0:
+                                    array = (NSMutableArray*)pdfValue.value;
+                                    [array addObject:tmp];
+                                    state = IN_OBJECT_IN_ARRAY_STATE;
+                                    break;
+                                case 1:
+                                default:
+                                    state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+                                    dictionary = (NSMutableDictionary*)pdfValue.value;
+                                    dictionary[[stack top][@"key"]] = tmp;
+                                    break;
+                            }
+                            [stack pop];
+                        }
                         break;
                     default:
                         ErrorState(@"Syntaxis error in dictoinary value");
