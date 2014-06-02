@@ -10,4 +10,7 @@
 
 @interface PDFXRex : NSObject
 
+@property NSUInteger objectNumber;
+@property NSUInteger generatedNumber;
+
 @end

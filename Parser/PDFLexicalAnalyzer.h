@@ -14,7 +14,9 @@
 enum PDFLexemeTypes
 {
     PDF_COMMENT_LEXEME_TYPE,            // Комментарий
-    PDF_NUMBER_LEXEME_TYPE,             // Десятичное целое неотрицательное число
+    PDF_INT_NUMBER_TYPE,                // Десятичное целое число
+    PDF_UINT_NUMBER_TYPE,               // Десятичное целое неотрицательное число
+    PDF_NUMBER_LEXEME_TYPE,             // Любое число
     PDF_STRING_LEXEME_TYPE,             // Строка
     PDF_HEX_STRING_LEXEME_TYPE,         // HEX строка
     PDF_OPEN_ARRAY_LEXEME_TYPE,         // Открывающая скобочка массива
@@ -30,20 +32,22 @@ enum PDFLexemeTypes
     PDF_ENDSTREAM_KEYWORD_LEXEME_TYPE,  // Ключевое слово endstream
     PDF_TRUE_KEYWORD_LEXEME_TYPE,       // Ключевое слово true
     PDF_FALSE_KEYWORD_LEXEME_TYPE,      // Ключевое слово false
+    PDF_NULL_KEYWORD_LEXEME,            // Ключевое слово null
     PDF_TRAILER_KEYWORD_LEXEME_TYPE,    // Ключевое слово trailer
+    PDF_R_KEYWORD_LEXEME,               // Ключевое слово R
     
     PDF_UNKNOWN_LEXEME,                 // Лексема неопределенного типа
 };
 
 /**
- * Лексический анализатор. Ожидаемые данные должны быть закодированны в ascii, каждый символ принимает значения в диапозоне 1..127. 
+ * Лексический анализатор. Ожидаемые данные должны быть закодированны в ascii, каждый символ принимает значения в диапозоне 0..127.
  * Данные должны оканчиваться байтом со значением 0.
  */
 @interface PDFLexicalAnalyzer : NSObject
 
 /**
  * Инициализация лексического анализатора.
- * @param data Ожидаемые данные должны быть закодированны в ascii, каждый символ принимает значения в диапозоне 1..127.
+ * @param data Ожидаемые данные должны быть закодированны в ascii, каждый символ принимает значения в диапозоне 0..127.
  * Данные должны оканчиваться байтом со значением 0.
  */
 - (id)initWithData:(NSData*)data;

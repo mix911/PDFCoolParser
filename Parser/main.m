@@ -9,23 +9,16 @@
 #import <Foundation/Foundation.h>
 #import <Foundation/NSObject.h>
 
-#import "PDFDocument.h"
-
 #import "PDFSyntaxAnalyzer.h"
 
 int main(int argc, const char * argv[])
 {
-
     @autoreleasepool {
+        NSData *fileData = [NSData dataWithContentsOfFile:@"/Users/kozliappi/Downloads/PDFCoolParser-master/test_in.pdf"];
         
-        NSData *fileData = [NSData dataWithContentsOfFile:@"/Users/demo/Documents/Projects/PDFCoolParser/test_in.pdf"];
-        
-        PDFDocument *document = [[PDFDocument alloc] initWithData:fileData];
-        if ([document errorMessage]) {
-            NSLog(@"%@", [document errorMessage]);
-        }
-        else {
-            NSLog(@"%@", [document version]);
+        PDFSyntaxAnalyzer *syntaxAnalyzer = [[PDFSyntaxAnalyzer alloc] initWithData:fileData];
+        for (PDFObject *syntaxObject = [syntaxAnalyzer nextSyntaxObject]; syntaxObject; syntaxObject = [syntaxAnalyzer nextSyntaxObject]) {
+            NSLog(@"%@", syntaxObject);
         }
     }
     return 0;

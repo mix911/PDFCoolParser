@@ -9,6 +9,9 @@
 #import <XCTest/XCTest.h>
 
 #import "PDFLexicalAnalyzer.h"
+#import "PDFSyntaxAnalyzer.h"
+#import "PDFObject.h"
+#import "PDFRef.h"
 
 static char text[] =    "(Hello world) ( This string has an end-of-line at the end of it .\r"
                         ")\r"
@@ -34,12 +37,15 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
                         "/$$\r"
                         "/@pattern\r"
                         "/The_Key_of_F#23_Minor\r"
-                        "3<<obj 123 endobj>>[xref startxref]/end stream ???? endstream true false trailer";
+                        "3<<obj 123 -1 -131 +2 +1000 1.2 .2 1. -1.2 -.2 -1. +1.2 +.2 +1. endobj>>[xref startxref]/end stream ???? endstream true false trailer R null";
 
 @interface Parser_Tests : XCTestCase
 {
     PDFLexicalAnalyzer *_pdfLexicalAnalyzer;
-    NSData *_data;
+    NSData *_lexicalAnalyzerData;
+    
+    PDFSyntaxAnalyzer *_syntaxAnalyzer;
+    NSData *_syntaxAnalyzerData;
 }
 
 @end
@@ -50,8 +56,17 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
 {
     [super setUp];
     
-    _data = [[NSData alloc] initWithBytes:text length:sizeof(text)];
-    _pdfLexicalAnalyzer = [[PDFLexicalAnalyzer alloc] initWithData:_data];
+    _lexicalAnalyzerData = [[NSData alloc] initWithBytes:text length:sizeof(text)];
+    _pdfLexicalAnalyzer = [[PDFLexicalAnalyzer alloc] initWithData:_lexicalAnalyzerData];
+    
+    _syntaxAnalyzerData = [NSData dataWithContentsOfFile:@"/Users/demo/Documents/Projects/PDFCoolParser/test_in.pdf"];
+    char* buffer = malloc(_syntaxAnalyzerData.length+1);
+    memcpy(buffer, _syntaxAnalyzerData.bytes, _syntaxAnalyzerData.length);
+    buffer[_syntaxAnalyzerData.length] = 0;
+    _syntaxAnalyzerData = [NSData dataWithBytes:buffer length:_syntaxAnalyzerData.length];
+    free(buffer);
+    
+    _syntaxAnalyzer = [[PDFSyntaxAnalyzer alloc] initWithData:_syntaxAnalyzerData];
 }
 
 - (void)tearDown
@@ -67,6 +82,10 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
             return @"Comment";
         case PDF_NUMBER_LEXEME_TYPE:
             return @"Number";
+        case PDF_INT_NUMBER_TYPE:
+            return @"Integer";
+        case PDF_UINT_NUMBER_TYPE:
+            return @"Unsignet integer";
         case PDF_STRING_LEXEME_TYPE:
             return @"String";
         case PDF_HEX_STRING_LEXEME_TYPE:
@@ -99,6 +118,10 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
             return @"false";
         case PDF_TRAILER_KEYWORD_LEXEME_TYPE:
             return @"trailer";
+        case PDF_R_KEYWORD_LEXEME:
+            return @"R";
+        case PDF_NULL_KEYWORD_LEXEME:
+            return @"null";
         default:
             return @"Unknown";
     }
@@ -117,8 +140,8 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
         memcpy(buffer, lexeme, len);
         buffer[len] = 0;
         XCTAssert(NO, "Failed to parse '%s' vs '%s'", buffer, checkedLexeme);
-        XCTAssertEqual(type, checkedType, "Type error: %@ vs %@", [self pdfLexemeType2NSString:type], [self pdfLexemeType2NSString:checkedType]);
     }
+    XCTAssertEqual(type, checkedType, "Type error: %@ vs %@", [self pdfLexemeType2NSString:type], [self pdfLexemeType2NSString:checkedType]);
 }
 
 - (void)testLexicalAnalyzer
@@ -147,10 +170,23 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
     [self subTestLexicalAnalyzerLexeme:"/$$" type:PDF_NAME_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"/@pattern" type:PDF_NAME_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"/The_Key_of_F#23_Minor" type:PDF_NAME_LEXEME_TYPE];
-    [self subTestLexicalAnalyzerLexeme:"3" type:PDF_NUMBER_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"3" type:PDF_UINT_NUMBER_TYPE];
     [self subTestLexicalAnalyzerLexeme:"<<" type:PDF_OPEN_DICTIONARY_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"obj" type:PDF_OBJ_KEYWORD_LEXEME_TYPE];
-    [self subTestLexicalAnalyzerLexeme:"123" type:PDF_NUMBER_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"123" type:PDF_UINT_NUMBER_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"-1" type:PDF_INT_NUMBER_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"-131" type:PDF_INT_NUMBER_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"+2" type:PDF_UINT_NUMBER_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"+1000" type:PDF_UINT_NUMBER_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"1.2" type:PDF_NUMBER_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:".2" type:PDF_NUMBER_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"1." type:PDF_NUMBER_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"-1.2" type:PDF_NUMBER_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"-.2" type:PDF_NUMBER_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"-1." type:PDF_NUMBER_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"+1.2" type:PDF_NUMBER_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"+.2" type:PDF_NUMBER_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"+1." type:PDF_NUMBER_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"endobj" type:PDF_ENDOBJ_KEYWORD_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:">>" type:PDF_CLOSE_DICTIONARY_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"[" type:PDF_OPEN_ARRAY_LEXEME_TYPE];
@@ -164,6 +200,70 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
     [self subTestLexicalAnalyzerLexeme:"true" type:PDF_TRUE_KEYWORD_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"false" type:PDF_FALSE_KEYWORD_LEXEME_TYPE];
     [self subTestLexicalAnalyzerLexeme:"trailer" type:PDF_TRAILER_KEYWORD_LEXEME_TYPE];
+    [self subTestLexicalAnalyzerLexeme:"R" type:PDF_R_KEYWORD_LEXEME];
+    [self subTestLexicalAnalyzerLexeme:"null" type:PDF_NULL_KEYWORD_LEXEME];
+}
+
+- (void)subTestComment:(NSString*)comment
+{
+    XCTAssertEqualObjects([_syntaxAnalyzer nextSyntaxObject], [PDFObject pdfComment:comment], @"");
+}
+
+- (void)subTestObject:(NSUInteger)objectNumber :(NSUInteger)generatedNumber :(PDFValue*)value
+{
+    PDFObject* srcObj = [_syntaxAnalyzer nextSyntaxObject];
+    PDFObject* tmpObj = [PDFObject pdfObjectWithValue:value objectNumber:objectNumber generatedNumber:generatedNumber];
+    XCTAssertEqualObjects(srcObj, tmpObj, @"");
+}
+
+- (void)testSyntaxAnalyzer
+{
+    [self subTestComment:@"%PDF-1.4"];
+    [self subTestComment:@"%Ã¢Ã£ÃÃ"];
+    [self subTestObject:326 :0 :nil];
+    [self subTestObject:326 :0 :[PDFValue numberValue:@123]];
+    [self subTestObject:326 :0 :[PDFValue hexStringValue:@"<12aB>"]];
+    [self subTestObject:326 :0 :[PDFValue stringValue:@"(333 () \\( )"]];
+    [self subTestObject:326 :0 :[PDFValue pdfRefValueWithObjectNumber:2 generatedNumber:3]];
+    [self subTestObject:326 :0 :[PDFValue falseValue]];
+    [self subTestObject:326 :0 :[PDFValue trueValue]];
+    [self subTestObject:326 :0 :[PDFValue nullValue]];
+    [self subTestObject:326 :0 :[PDFValue arrayValue:[NSMutableArray arrayWithObjects:
+                                                        [PDFValue numberValue:@1],
+                                                        [PDFValue numberValue:@2],
+                                                        [PDFValue numberValue:@3],
+                                                        [PDFValue stringValue:@"(ololo)"],
+                                                        [PDFValue numberValue:@(-4)],
+                                                        [PDFValue trueValue],
+                                                        [PDFValue falseValue],
+                                                        nil]]];
+    [self subTestObject:326 :0 :[PDFValue arrayValue:[NSMutableArray arrayWithObjects:
+                                                      [PDFValue arrayValue:
+                                                       [NSMutableArray arrayWithObjects:
+                                                        [PDFValue nullValue],
+                                                        [PDFValue numberValue:@3],
+                                                        [PDFValue arrayValue:[NSMutableArray array]],
+                                                        nil]],
+                                                      [PDFValue numberValue:@1],
+                                                      [PDFValue arrayValue:[NSMutableArray array]],
+                                                      nil]]];
+    self subTestObject:326 :0 :[PDFValue dictionaryValue:
+                                []]
+    
+    [self subTestObject:326
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                         @"/key1" : [PDFValue numberValue:@0],
+                                                                         @"/key2" : [PDFValue hexStringValue:@"<aBc3>"],
+                                                                         @"/key3" : [PDFValue stringValue:@"(Simple string)"],
+                                                                         @"/key4" : [PDFValue nameValue:@"/Name"],
+                                                                         @"/key5" : [PDFValue trueValue],
+                                                                         @"/key6" : [PDFValue falseValue],
+                                                                         @"/key7" : [PDFValue pdfRefValueWithObjectNumber:9 generatedNumber:3],
+                                                                         @"/key8" : [PDFValue nullValue],
+                                                                         @"/key9" : [PDFValue pdfRefValueWithObjectNumber:1 generatedNumber:2]
+                                                                         }]]];
 }
 
 @end

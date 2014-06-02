@@ -8,6 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
+@class PDFObject;
+
 @interface PDFSyntaxAnalyzer : NSObject
+
+- (id)initWithData:(NSData*)data;
+- (PDFObject*)nextSyntaxObject;
+
+@property (readonly) NSString *errorMessage;
 
 @end

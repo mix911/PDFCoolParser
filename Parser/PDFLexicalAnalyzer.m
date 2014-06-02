@@ -88,7 +88,12 @@ enum PDFLexicalAnalyzerStates
     UNDER_SLASH_STATE,
     IN_OCTAL_DDD_WAIT_NOT_ZERO_STATE,
     IN_OCTAL_DDD_STATE,
-    IN_NUMBER_STATE,
+    IN_NUMBER_AFTER_ONLY_POINT,
+    IN_NUMBER_AFTER_PLUS,
+    IN_NUMBER_AFTER_MINUS,
+    IN_REAL_NUMBER,
+    IN_INTEGRAL_NUMBER_PART_STATE,
+    IN_UINTEGRAL_NUMBER_PART_STATE,
 
     END_LEXEME_STATE,
 };
@@ -132,6 +137,15 @@ enum PDFLexicalAnalyzerStates
                     case '>':
                         state = CLOSE_TRIANGLE_BRACKET_STATE;
                         break;
+                    case '.':
+                        state = IN_NUMBER_AFTER_ONLY_POINT;
+                        break;
+                    case '-':
+                        state = IN_NUMBER_AFTER_MINUS;
+                        break;
+                    case '+':
+                        state = IN_NUMBER_AFTER_PLUS;
+                        break;
                     case '0':
                     case '1':
                     case '2':
@@ -142,7 +156,7 @@ enum PDFLexicalAnalyzerStates
                     case '7':
                     case '8':
                     case '9':
-                        state = IN_NUMBER_STATE;
+                        state = IN_UINTEGRAL_NUMBER_PART_STATE;
                         break;
                     default:
                         if (isBlankSymbol(ch) == 0) {
@@ -271,7 +285,51 @@ enum PDFLexicalAnalyzerStates
                 }
                 break;
                 
-            case IN_NUMBER_STATE:
+            case IN_NUMBER_AFTER_MINUS:
+                if (ch == '.') {
+                    state = IN_NUMBER_AFTER_ONLY_POINT;
+                } else if (isDigitSymbol(ch) == 0 || ch == 0) {
+                    ErrorState(@"Number must contain digit after minus");
+                } else {
+                    state = IN_INTEGRAL_NUMBER_PART_STATE;
+                }
+                break;
+                
+            case IN_NUMBER_AFTER_PLUS:
+                if (ch == '.') {
+                    state = IN_NUMBER_AFTER_ONLY_POINT;
+                } else if (isDigitSymbol(ch) == 0 || ch == 0) {
+                    ErrorState(@"Number must contain digit after plus");
+                } else {
+                    state = IN_UINTEGRAL_NUMBER_PART_STATE;
+                }
+                break;
+                
+            case IN_INTEGRAL_NUMBER_PART_STATE:
+                if (ch == '.') {
+                    state = IN_REAL_NUMBER;
+                } else if (isDigitSymbol(ch) == 0 || ch == 0) {
+                    EndState(PDF_INT_NUMBER_TYPE);
+                }
+                break;
+                
+            case IN_UINTEGRAL_NUMBER_PART_STATE:
+                if (ch == '.') {
+                    state = IN_REAL_NUMBER;
+                } else if (isDigitSymbol(ch) == 0 || ch == 0) {
+                    EndState(PDF_UINT_NUMBER_TYPE);
+                }
+                break;
+                
+            case IN_NUMBER_AFTER_ONLY_POINT:
+                if (isDigitSymbol(ch) == 0 || ch ==0) {
+                    ErrorState(@"Number must contain digit befor or after point");
+                } else {
+                    state = IN_REAL_NUMBER;
+                }
+                break;
+                
+            case IN_REAL_NUMBER:
                 if (isDigitSymbol(ch) == 0 || ch == 0) {
                     EndState(PDF_NUMBER_LEXEME_TYPE);
                 }
@@ -282,22 +340,26 @@ enum PDFLexicalAnalyzerStates
                     state = END_LEXEME_STATE;
                     if (_pointer - lexeme == 3 && strncmp(lexeme, "obj", 3) == 0) {
                         *type = PDF_OBJ_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 6 && strncmp(lexeme, "endobj", 6)) {
+                    } else if (_pointer - lexeme == 6 && strncmp(lexeme, "endobj", 6) == 0) {
                         *type = PDF_ENDOBJ_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 4 && strncmp(lexeme, "xref", 4)) {
+                    } else if (_pointer - lexeme == 4 && strncmp(lexeme, "xref", 4) == 0) {
                         *type = PDF_XREF_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 9 && strncmp(lexeme, "startxref", 9)) {
+                    } else if (_pointer - lexeme == 9 && strncmp(lexeme, "startxref", 9) == 0) {
                         *type = PDF_STARTXREF_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 6 && strncmp(lexeme, "stream", 6)) {
+                    } else if (_pointer - lexeme == 6 && strncmp(lexeme, "stream", 6) == 0) {
                         *type = PDF_STREAM_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 9 && strncmp(lexeme, "endstream", 9)) {
+                    } else if (_pointer - lexeme == 9 && strncmp(lexeme, "endstream", 9) == 0) {
                         *type = PDF_ENDSTREAM_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 4 && strncmp(lexeme, "true", 4)) {
+                    } else if (_pointer - lexeme == 4 && strncmp(lexeme, "true", 4) == 0) {
                         *type = PDF_TRUE_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 5 && strncmp(lexeme, "false", 5)) {
+                    } else if (_pointer - lexeme == 5 && strncmp(lexeme, "false", 5) == 0) {
                         *type = PDF_FALSE_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 7 && strncmp(lexeme, "trailer", 7)) {
+                    } else if (_pointer - lexeme == 7 && strncmp(lexeme, "trailer", 7) == 0) {
                         *type = PDF_TRAILER_KEYWORD_LEXEME_TYPE;
+                    } else if (_pointer - lexeme == 1 && strncmp(lexeme, "R", 1) == 0) {
+                        *type = PDF_R_KEYWORD_LEXEME;
+                    } else if (_pointer - lexeme == 4 && strncmp(lexeme, "null", 4) == 0) {
+                        *type = PDF_NULL_KEYWORD_LEXEME;
                     }
                 }
                 break;
