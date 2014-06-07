@@ -212,7 +212,20 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
 - (void)subTestObject:(NSUInteger)objectNumber :(NSUInteger)generatedNumber :(PDFValue*)value
 {
     PDFObject* srcObj = [_syntaxAnalyzer nextSyntaxObject];
+    if (srcObj == nil) {
+        XCTAssert(false, @"Error: %@", _syntaxAnalyzer.errorMessage);
+    }
     PDFObject* tmpObj = [PDFObject pdfObjectWithValue:value objectNumber:objectNumber generatedNumber:generatedNumber];
+    XCTAssertEqualObjects(srcObj, tmpObj, @"");
+}
+
+- (void)subTestObject:(NSUInteger)objectNumber :(NSUInteger)generatedNumber :(PDFValue*)value :(NSData*)stream
+{
+    PDFObject* srcObj = [_syntaxAnalyzer nextSyntaxObject];
+    if (srcObj == nil) {
+        XCTAssert(false, @"Error: %@", _syntaxAnalyzer.errorMessage);
+    }
+    PDFObject* tmpObj = [PDFObject pdfObjectWithValue:value stream:stream objectNumber:objectNumber generatedNumber:generatedNumber];
     XCTAssertEqualObjects(srcObj, tmpObj, @"");
 }
 
@@ -288,6 +301,34 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
                                                                              nil]]
                                             }]]
                             }]]];
+    [self subTestObject:326
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/Length" : [PDFValue numberValue:@10]
+                            }]]
+                       :[NSData dataWithBytes:"1234567890" length:10]];
+    [self subTestObject:325
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/Linearized" : [PDFValue numberValue:@1],
+                            @"/O" : [PDFValue numberValue:@328],
+                            @"/H" : [PDFValue arrayValue:
+                                     [NSMutableArray arrayWithObjects:
+                                      [PDFValue numberValue:@1317],
+                                      [PDFValue numberValue:@2127],
+                                      nil]],
+                            @"/L" : [PDFValue numberValue:@1119433],
+                            @"/E" : [PDFValue numberValue:@54084],
+                            @"/N" : [PDFValue numberValue:@38],
+                            @"/T" : [PDFValue numberValue:@1112814]
+                            }]]];
+    PDFObject* obj = [_syntaxAnalyzer nextSyntaxObject];
+    int k = 0;
+    ++k;
 }
 
 @end

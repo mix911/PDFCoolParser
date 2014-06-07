@@ -5,9 +5,7 @@
 //  Created by demo on 13.05.14.
 //  Copyright (c) 2014 Ptenster. All rights reserved.
 //
-
 #import <Foundation/Foundation.h>
-
 /**
  * Типы лексем
  */
@@ -38,20 +36,17 @@ enum PDFLexemeTypes
     
     PDF_UNKNOWN_LEXEME,                 // Лексема неопределенного типа
 };
-
 /**
  * Лексический анализатор. Ожидаемые данные должны быть закодированны в ascii, каждый символ принимает значения в диапозоне 0..127.
  * Данные должны оканчиваться байтом со значением 0.
  */
 @interface PDFLexicalAnalyzer : NSObject
-
 /**
  * Инициализация лексического анализатора.
  * @param data Ожидаемые данные должны быть закодированны в ascii, каждый символ принимает значения в диапозоне 0..127.
  * Данные должны оканчиваться байтом со значением 0.
  */
 - (id)initWithData:(NSData*)data;
-
 /**
  * Получение следующей лексемы. Должно вызыватся только после установки данных.
  * @param len параметр для получения длины лексемы. В случае лексической ошибки значение len будет 0.
@@ -59,17 +54,21 @@ enum PDFLexemeTypes
  * @return const char* Лексема, длинны len и типа type.
  */
 - (const char*)nextLexeme:(NSUInteger*)len type:(enum PDFLexemeTypes*)type;
-
 /**
  * В сообщение о лексической ошибке.
  */
 @property (readonly) NSString *errorMessage;
-
 /**
  * Пропустить count байт. Метод нужен для того, чтобы пропускать содержимое stream'ов.
  * @param count Количество байт, которое нужно пропустить
- * @return BOOL YES - если удалось переместить количество на заданное количество байт, в противном случае NO.
+ * @return NSData* пропущенные байты. NSData.length <= count, в зависимости от того, сколько байт удалось пропустить
  */
-- (BOOL)skipBytesByCount:(NSUInteger)count;
+- (NSData*)getAndSkipBytesByCount:(NSUInteger)count;
+/**
+ * Пропустить count байт. Метод нужен для того, чтобы пропускать содержимое stream'ов.
+ * @param count Количество байт, которое нужно пропустить
+ * @return NSData* пропущенные байты. NSData.length <= count, в зависимости от того, сколько байт удалось пропустить
+ */
+- (NSUInteger)skipBytesByCount:(NSUInteger)count;
 
 @end

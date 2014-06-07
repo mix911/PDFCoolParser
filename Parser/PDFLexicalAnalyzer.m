@@ -381,13 +381,26 @@ enum PDFLexicalAnalyzerStates
     return NULL;
 }
 
-- (BOOL)skipBytesByCount:(NSUInteger)count
+- (NSData*)getAndSkipBytesByCount:(NSUInteger)count
 {
-    if (_pointer + count - _dataBegin < _len) {
+    NSData *res = nil;
+    if (_pointer + count > _dataBegin + _len) {
+        res = [NSData dataWithBytes:_pointer length:_dataBegin + _len - _pointer];
+        _pointer += _dataBegin + _len - _pointer;
+    } else {
+        res = [NSData dataWithBytes:_pointer length:count];
         _pointer += count;
-        return YES;
     }
-    return NO;
+    return res;
+}
+
+- (NSUInteger)skipBytesByCount:(NSUInteger)count
+{
+    if (_pointer + count > _dataBegin + _len) {
+        count = _dataBegin + _len - _pointer;
+    }
+    _pointer += count;
+    return count;
 }
 
 @end
