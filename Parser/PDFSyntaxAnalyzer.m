@@ -15,7 +15,7 @@
 #import "PDFRef.h"
 #import "PDFStack.h"
 #import "PDFXRefTable.h"
-#import "PDFXRefSection.h"
+#import "PDFXRefSubSection.h"
 
 #define ErrorState(message) {\
     state = ERROR_STATE;\
@@ -114,7 +114,7 @@ enum PDFSyntaxAnalyzerStates
     NSUInteger xrefFirstObjectNumber = 0;
     NSUInteger xrefLastObjectNumber = 0;
     NSMutableArray *subTables = [NSMutableArray array];
-    PDFXRefSection *xrefSection = nil;
+    PDFXRefSubSection *xrefSection = nil;
     PDFXRefTable *xrefTable = nil;
     NSUInteger trailerOffset = 0;
     
@@ -514,7 +514,7 @@ enum PDFSyntaxAnalyzerStates
                         xrefLastObjectNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
                         state = IN_XREF_NEED_FIRST_OBJECT_NUMBER_STATE;
                         [_lexicalAnalyzer skipBytesByCount:2];
-                        xrefSection = [PDFXRefSection pdfXRefSectionWithFirstObjectNumber:xrefFirstObjectNumber
+                        xrefSection = [PDFXRefSubSection pdfXRefSectionWithFirstObjectNumber:xrefFirstObjectNumber
                                                                          lastObjectNumber:xrefLastObjectNumber
                                                                                      data:[_lexicalAnalyzer getAndSkipBytesByCount:19 * xrefLastObjectNumber]];
                         [subTables addObject:xrefSection];

@@ -29,8 +29,8 @@
 		B40CEB8319256DC400064464 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B40CEB8219256DC400064464 /* XCTest.framework */; };
 		B40CEB8919256DC400064464 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B40CEB8719256DC400064464 /* InfoPlist.strings */; };
 		B40CEB8B19256DC400064464 /* Parser_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CEB8A19256DC400064464 /* Parser_Tests.m */; };
-		B4FB1A731943543700801698 /* PDFXRefSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A701943543700801698 /* PDFXRefSection.m */; };
-		B4FB1A741943543700801698 /* PDFXRefSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A701943543700801698 /* PDFXRefSection.m */; };
+		B4FB1A731943543700801698 /* PDFXRefSubSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A701943543700801698 /* PDFXRefSubSection.m */; };
+		B4FB1A741943543700801698 /* PDFXRefSubSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A701943543700801698 /* PDFXRefSubSection.m */; };
 		B4FB1A751943543700801698 /* PDFXRefTable.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A721943543700801698 /* PDFXRefTable.m */; };
 		B4FB1A761943543700801698 /* PDFXRefTable.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A721943543700801698 /* PDFXRefTable.m */; };
 /* End PBXBuildFile section */
@@ -86,8 +86,8 @@
 		B40CEB8819256DC400064464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B40CEB8A19256DC400064464 /* Parser_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Parser_Tests.m; sourceTree = "<group>"; };
 		B40CEB8C19256DC400064464 /* Parser Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Parser Tests-Prefix.pch"; sourceTree = "<group>"; };
-		B4FB1A6F1943543700801698 /* PDFXRefSection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFXRefSection.h; sourceTree = "<group>"; };
-		B4FB1A701943543700801698 /* PDFXRefSection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFXRefSection.m; sourceTree = "<group>"; };
+		B4FB1A6F1943543700801698 /* PDFXRefSubSection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFXRefSubSection.h; sourceTree = "<group>"; };
+		B4FB1A701943543700801698 /* PDFXRefSubSection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFXRefSubSection.m; sourceTree = "<group>"; };
 		B4FB1A711943543700801698 /* PDFXRefTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFXRefTable.h; sourceTree = "<group>"; };
 		B4FB1A721943543700801698 /* PDFXRefTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFXRefTable.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -143,8 +143,8 @@
 		198DDE8D191E279B00B11929 /* Parser */ = {
 			isa = PBXGroup;
 			children = (
-				B4FB1A6F1943543700801698 /* PDFXRefSection.h */,
-				B4FB1A701943543700801698 /* PDFXRefSection.m */,
+				B4FB1A6F1943543700801698 /* PDFXRefSubSection.h */,
+				B4FB1A701943543700801698 /* PDFXRefSubSection.m */,
 				B4FB1A711943543700801698 /* PDFXRefTable.h */,
 				B4FB1A721943543700801698 /* PDFXRefTable.m */,
 				19D1B529193BA1B000F1A2A6 /* PDFRef.h */,
@@ -290,7 +290,7 @@
 				19AE7303192B329100CEED4F /* PDFObject.m in Sources */,
 				B4FB1A751943543700801698 /* PDFXRefTable.m in Sources */,
 				198F7CC91939CD25005FEBAB /* PDFValue.m in Sources */,
-				B4FB1A731943543700801698 /* PDFXRefSection.m in Sources */,
+				B4FB1A731943543700801698 /* PDFXRefSubSection.m in Sources */,
 				198DDE8F191E279B00B11929 /* main.m in Sources */,
 				19CC6560192B7BBA00F191E5 /* PDFStack.m in Sources */,
 				19880771192A2E4700D2770D /* PDFTrue.m in Sources */,
@@ -308,7 +308,7 @@
 				198F7CCA1939CD25005FEBAB /* PDFValue.m in Sources */,
 				19880772192A2E4700D2770D /* PDFTrue.m in Sources */,
 				19880776192A2E4F00D2770D /* PDFFalse.m in Sources */,
-				B4FB1A741943543700801698 /* PDFXRefSection.m in Sources */,
+				B4FB1A741943543700801698 /* PDFXRefSubSection.m in Sources */,
 				19AE7304192B329100CEED4F /* PDFObject.m in Sources */,
 				B40CEB8B19256DC400064464 /* Parser_Tests.m in Sources */,
 				B4FB1A761943543700801698 /* PDFXRefTable.m in Sources */,

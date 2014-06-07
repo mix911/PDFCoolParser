@@ -13,6 +13,7 @@
 #import "PDFObject.h"
 #import "PDFRef.h"
 #import "PDFXRefTable.h"
+#import "PDFXRefSubSection.h"
 
 static char text[] =    "(Hello world) ( This string has an end-of-line at the end of it .\r"
                         ")\r"
@@ -39,6 +40,43 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
                         "/@pattern\r"
                         "/The_Key_of_F#23_Minor\r"
                         "3<<obj 123 -1 -131 +2 +1000 1.2 .2 1. -1.2 -.2 -1. +1.2 +.2 +1. endobj>>[xref startxref]/end stream ???? endstream true false trailer R null";
+
+static char sectionData[] = "0000000016 00000 n\r"
+                            "0000001071 00000 n\r"
+                            "0000001166 00000 n\r"
+                            "0000003444 00000 n\r"
+                            "0000003602 00000 n\r"
+                            "0000003816 00000 n\r"
+                            "0000004048 00000 n\r"
+                            "0000004221 00000 n\r"
+                            "0000004289 00000 n\r"
+                            "0000004625 00000 n\r"
+                            "0000007262 00000 n\r"
+                            "0000008158 00000 n\r"
+                            "0000008810 00000 n\r"
+                            "0000009635 00000 n\r"
+                            "0000010282 00000 n\r"
+                            "0000010620 00000 n\r"
+                            "0000011525 00000 n\r"
+                            "0000012090 00000 n\r"
+                            "0000012512 00000 n\r"
+                            "0000013434 00000 n\r"
+                            "0000018691 00000 n\r"
+                            "0000019588 00000 n\r"
+                            "0000020056 00000 n\r"
+                            "0000020442 00000 n\r"
+                            "0000020868 00000 n\r"
+                            "0000021274 00000 n\r"
+                            "0000030972 00000 n\r"
+                            "0000031469 00000 n\r"
+                            "0000031609 00000 n\r"
+                            "0000031748 00000 n\r"
+                            "0000040006 00000 n\r"
+                            "0000045381 00000 n\r"
+                            "0000053354 00000 n\r"
+                            "0000053800 00000 n\r"
+                            "0000001317 00000 n\r"
+                            "0000003421 00000 n\r";
 
 @interface Parser_Tests : XCTestCase
 {
@@ -340,7 +378,57 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
                             @"/N" : [PDFValue numberValue:@38],
                             @"/T" : [PDFValue numberValue:@1112814]
                             }]]];
-    [self subTestXRefTable:[PDFXRefTable pdfXRefTableWithSubSections:@[]] trailer:@{@"/Size": @""} offset:0];
+    [self subTestXRefTable:[PDFXRefTable pdfXRefTableWithSubSections:
+                            @[
+                              [PDFXRefSubSection pdfXRefSectionWithFirstObjectNumber:325
+                                                                 lastObjectNumber:36
+                                                                             data:[NSData dataWithBytes:sectionData length:sizeof(sectionData)-1]]
+                              ]]
+                   trailer:@{
+                             @"/Size" : [PDFValue numberValue:@361],
+                             @"/Info" : [PDFValue pdfRefValueWithObjectNumber:316 generatedNumber:0],
+                             @"/Root" : [PDFValue pdfRefValueWithObjectNumber:326 generatedNumber:0],
+                             @"/Prev" : [PDFValue numberValue:@1112803],
+                             @"/ID" : [PDFValue arrayValue:
+                                       [NSMutableArray arrayWithObjects:
+                                        [PDFValue hexStringValue:@"<7a6636ff523a802804b8359a7bb65124>"],
+                                        [PDFValue hexStringValue:@"<3bc21a09cd84580eea4371ce34ffa70b>"],
+                                        nil]]
+                             }
+                    offset:0];
+    [self subTestObject:326
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/Type" : [PDFValue nameValue:@"/Catalog"],
+                            @"/Pages" : [PDFValue pdfRefValueWithObjectNumber:315 generatedNumber:0],
+                            @"/Metadata" : [PDFValue pdfRefValueWithObjectNumber:317 generatedNumber:0],
+                            @"/AcroForm" : [PDFValue pdfRefValueWithObjectNumber:327 generatedNumber:0],
+                            }]]];
+    [self subTestObject:327
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/Fields" : [PDFValue arrayValue:[NSMutableArray array]],
+                            @"/DR" : [PDFValue dictionaryValue:
+                                      [NSMutableDictionary dictionaryWithDictionary:
+                                       @{
+                                         @"/Font" : [PDFValue dictionaryValue:
+                                                     [NSMutableDictionary dictionaryWithDictionary:
+                                                      @{
+                                                        @"/ZaDb" : [PDFValue pdfRefValueWithObjectNumber:312 generatedNumber:0],
+                                                        @"/Helv" : [PDFValue pdfRefValueWithObjectNumber:313 generatedNumber:0]
+                                                        }]],
+                                         @"/Encoding" : [PDFValue dictionaryValue:
+                                                         [NSMutableDictionary dictionaryWithDictionary:
+                                                          @{
+                                                            @"/PDFDocEncoding" : [PDFValue pdfRefValueWithObjectNumber:314 generatedNumber:0]
+                                                            }]]
+                                         }]],
+                            @"/DA" : [PDFValue stringValue:@"(/Helv 0 Tf 0 g )"]
+                            }]]];
 }
 
 @end

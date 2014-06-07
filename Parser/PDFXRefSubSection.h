@@ -8,13 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
-@interface PDFXRefSection : NSObject
+@interface PDFXRefSubSection : NSObject
 
-+ (PDFXRefSection*) pdfXRefSectionWithFirstObjectNumber:(NSUInteger)firstObjectNumber lastObjectNumber:(NSUInteger)lastObjectNumber data:(NSData*)data;
++ (PDFXRefSubSection*) pdfXRefSectionWithFirstObjectNumber:(NSUInteger)firstObjectNumber lastObjectNumber:(NSUInteger)lastObjectNumber data:(NSData*)data;
 - (id)initWithFirstObjectNumber:(NSUInteger)firstObjectNumber lastObjectNumber:(NSUInteger)lastObjectNumber data:(NSData*)data;
 
 @property (readonly) NSUInteger firstObjectNumber;
 @property (readonly) NSUInteger lastObjectNumber;
 @property (readonly, retain) NSData *data;
+
+- (BOOL)isEqualToXRefSubSection:(PDFXRefSubSection*)subSection;
 
 @end

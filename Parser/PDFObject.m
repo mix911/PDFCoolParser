@@ -111,6 +111,14 @@
 
 - (BOOL)isTrailerEqualToTrailer:(NSDictionary*)trailer
 {
+    if (self.trailer.count != trailer.count) {
+        return NO;
+    }
+    for (NSString *key in [self.trailer allKeys]) {
+        if ([((PDFValue*)self.trailer[key]) isEqualToPDFValue:(PDFValue *)trailer[key]] == NO) {
+            return NO;
+        }
+    }
     return YES;
 }
 
