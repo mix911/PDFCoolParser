@@ -29,10 +29,10 @@
 		B40CEB8319256DC400064464 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B40CEB8219256DC400064464 /* XCTest.framework */; };
 		B40CEB8919256DC400064464 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B40CEB8719256DC400064464 /* InfoPlist.strings */; };
 		B40CEB8B19256DC400064464 /* Parser_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CEB8A19256DC400064464 /* Parser_Tests.m */; };
-		B42D54C9194235EB00A00F30 /* PDFXRefTable.m in Sources */ = {isa = PBXBuildFile; fileRef = B42D54C8194235EB00A00F30 /* PDFXRefTable.m */; };
-		B42D54CA194235EB00A00F30 /* PDFXRefTable.m in Sources */ = {isa = PBXBuildFile; fileRef = B42D54C8194235EB00A00F30 /* PDFXRefTable.m */; };
-		B42D54CD19423AB500A00F30 /* PDFXRefSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B42D54CC19423AB500A00F30 /* PDFXRefSection.m */; };
-		B42D54CE19423AB500A00F30 /* PDFXRefSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B42D54CC19423AB500A00F30 /* PDFXRefSection.m */; };
+		B4FB1A731943543700801698 /* PDFXRefSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A701943543700801698 /* PDFXRefSection.m */; };
+		B4FB1A741943543700801698 /* PDFXRefSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A701943543700801698 /* PDFXRefSection.m */; };
+		B4FB1A751943543700801698 /* PDFXRefTable.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A721943543700801698 /* PDFXRefTable.m */; };
+		B4FB1A761943543700801698 /* PDFXRefTable.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A721943543700801698 /* PDFXRefTable.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,10 +86,10 @@
 		B40CEB8819256DC400064464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B40CEB8A19256DC400064464 /* Parser_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Parser_Tests.m; sourceTree = "<group>"; };
 		B40CEB8C19256DC400064464 /* Parser Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Parser Tests-Prefix.pch"; sourceTree = "<group>"; };
-		B42D54C7194235EB00A00F30 /* PDFXRefTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFXRefTable.h; sourceTree = "<group>"; };
-		B42D54C8194235EB00A00F30 /* PDFXRefTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFXRefTable.m; sourceTree = "<group>"; };
-		B42D54CB19423AB500A00F30 /* PDFXRefSection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFXRefSection.h; sourceTree = "<group>"; };
-		B42D54CC19423AB500A00F30 /* PDFXRefSection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFXRefSection.m; sourceTree = "<group>"; };
+		B4FB1A6F1943543700801698 /* PDFXRefSection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFXRefSection.h; sourceTree = "<group>"; };
+		B4FB1A701943543700801698 /* PDFXRefSection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFXRefSection.m; sourceTree = "<group>"; };
+		B4FB1A711943543700801698 /* PDFXRefTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFXRefTable.h; sourceTree = "<group>"; };
+		B4FB1A721943543700801698 /* PDFXRefTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFXRefTable.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,10 +143,10 @@
 		198DDE8D191E279B00B11929 /* Parser */ = {
 			isa = PBXGroup;
 			children = (
-				B42D54CB19423AB500A00F30 /* PDFXRefSection.h */,
-				B42D54CC19423AB500A00F30 /* PDFXRefSection.m */,
-				B42D54C7194235EB00A00F30 /* PDFXRefTable.h */,
-				B42D54C8194235EB00A00F30 /* PDFXRefTable.m */,
+				B4FB1A6F1943543700801698 /* PDFXRefSection.h */,
+				B4FB1A701943543700801698 /* PDFXRefSection.m */,
+				B4FB1A711943543700801698 /* PDFXRefTable.h */,
+				B4FB1A721943543700801698 /* PDFXRefTable.m */,
 				19D1B529193BA1B000F1A2A6 /* PDFRef.h */,
 				19D1B52A193BA1B000F1A2A6 /* PDFRef.m */,
 				19AE7301192B329100CEED4F /* PDFObject.h */,
@@ -288,14 +288,14 @@
 				19C587E0192B144400B65A7D /* PDFSyntaxAnalyzer.m in Sources */,
 				B40CE98F19264926007C8E04 /* PDFLexicalAnalyzer.m in Sources */,
 				19AE7303192B329100CEED4F /* PDFObject.m in Sources */,
-				B42D54C9194235EB00A00F30 /* PDFXRefTable.m in Sources */,
+				B4FB1A751943543700801698 /* PDFXRefTable.m in Sources */,
 				198F7CC91939CD25005FEBAB /* PDFValue.m in Sources */,
+				B4FB1A731943543700801698 /* PDFXRefSection.m in Sources */,
 				198DDE8F191E279B00B11929 /* main.m in Sources */,
 				19CC6560192B7BBA00F191E5 /* PDFStack.m in Sources */,
 				19880771192A2E4700D2770D /* PDFTrue.m in Sources */,
 				19880775192A2E4F00D2770D /* PDFFalse.m in Sources */,
 				19D1B52B193BA1B000F1A2A6 /* PDFRef.m in Sources */,
-				B42D54CD19423AB500A00F30 /* PDFXRefSection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -307,11 +307,11 @@
 				19D1B52C193BA1B000F1A2A6 /* PDFRef.m in Sources */,
 				198F7CCA1939CD25005FEBAB /* PDFValue.m in Sources */,
 				19880772192A2E4700D2770D /* PDFTrue.m in Sources */,
-				B42D54CA194235EB00A00F30 /* PDFXRefTable.m in Sources */,
-				B42D54CE19423AB500A00F30 /* PDFXRefSection.m in Sources */,
 				19880776192A2E4F00D2770D /* PDFFalse.m in Sources */,
+				B4FB1A741943543700801698 /* PDFXRefSection.m in Sources */,
 				19AE7304192B329100CEED4F /* PDFObject.m in Sources */,
 				B40CEB8B19256DC400064464 /* Parser_Tests.m in Sources */,
+				B4FB1A761943543700801698 /* PDFXRefTable.m in Sources */,
 				19CC6561192B7BBA00F191E5 /* PDFStack.m in Sources */,
 				B40CE99019264926007C8E04 /* PDFLexicalAnalyzer.m in Sources */,
 			);

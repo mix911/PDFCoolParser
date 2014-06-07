@@ -24,4 +24,9 @@
     return self;
 }
 
+- (BOOL)isEqualToXRefTable:(PDFXRefTable*)xrefTable
+{
+    return YES;
+}
+
 @end

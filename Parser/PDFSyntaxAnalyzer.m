@@ -151,6 +151,7 @@ enum PDFSyntaxAnalyzerStates
                         break;
                     case PDF_TRAILER_KEYWORD_LEXEME_TYPE:
                         state = IN_TRAILER_STATE;
+                        xrefTable = [PDFXRefTable pdfXRefTableWithSubSections:subTables];
                         break;
                     default:
                         ErrorState(@"Failed to parse xref subsection");

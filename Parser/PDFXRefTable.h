@@ -15,4 +15,6 @@
 
 @property (readonly, retain) NSArray *subSections;
 
+- (BOOL)isEqualToXRefTable:(PDFXRefTable*)xrefTable;
+
 @end

@@ -99,9 +99,19 @@
                     (self.generatedNumber == pdfObj.generatedNumber) &&
                     (self.value  ? [self.value isEqualToPDFValue:pdfObj.value]  : pdfObj.value  == nil) &&
                     (self.stream ? [self.stream isEqualToData:pdfObj.stream]    : pdfObj.stream == nil);
+        case PDF_XREF_TYPE:
+            return  (pdfObj.type == PDF_XREF_TYPE) &&
+                    (self.offset == pdfObj.offset) &&
+                    ([self isTrailerEqualToTrailer:pdfObj.trailer]) &&
+                    ([self.xrefTable isEqualToXRefTable:pdfObj.xrefTable]);
         default:
             return NO;
     }
+}
+
+- (BOOL)isTrailerEqualToTrailer:(NSDictionary*)trailer
+{
+    return YES;
 }
 
 @end

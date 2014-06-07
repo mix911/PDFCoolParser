@@ -12,6 +12,7 @@
 #import "PDFSyntaxAnalyzer.h"
 #import "PDFObject.h"
 #import "PDFRef.h"
+#import "PDFXRefTable.h"
 
 static char text[] =    "(Hello world) ( This string has an end-of-line at the end of it .\r"
                         ")\r"
@@ -213,7 +214,8 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
 {
     PDFObject* srcObj = [_syntaxAnalyzer nextSyntaxObject];
     if (srcObj == nil) {
-        XCTAssert(false, @"Error: %@", _syntaxAnalyzer.errorMessage);
+        XCTAssert(NO, @"Error: %@", _syntaxAnalyzer.errorMessage);
+        return;
     }
     PDFObject* tmpObj = [PDFObject pdfObjectWithValue:value objectNumber:objectNumber generatedNumber:generatedNumber];
     XCTAssertEqualObjects(srcObj, tmpObj, @"");
@@ -223,9 +225,21 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
 {
     PDFObject* srcObj = [_syntaxAnalyzer nextSyntaxObject];
     if (srcObj == nil) {
-        XCTAssert(false, @"Error: %@", _syntaxAnalyzer.errorMessage);
+        XCTAssert(NO, @"Error: %@", _syntaxAnalyzer.errorMessage);
+        return;
     }
     PDFObject* tmpObj = [PDFObject pdfObjectWithValue:value stream:stream objectNumber:objectNumber generatedNumber:generatedNumber];
+    XCTAssertEqualObjects(srcObj, tmpObj, @"");
+}
+
+- (void)subTestXRefTable:(PDFXRefTable*)table trailer:(NSDictionary*)trailer offset:(NSUInteger)offset
+{
+    PDFObject* srcObj = [_syntaxAnalyzer nextSyntaxObject];
+    if (srcObj == nil) {
+        XCTAssert(NO, @"Error: %@", _syntaxAnalyzer.errorMessage);
+        return;
+    }
+    PDFObject* tmpObj = [PDFObject pdfObjectWithXRefTable:table trailer:trailer offset:offset];
     XCTAssertEqualObjects(srcObj, tmpObj, @"");
 }
 
@@ -326,9 +340,7 @@ static char text[] =    "(Hello world) ( This string has an end-of-line at the e
                             @"/N" : [PDFValue numberValue:@38],
                             @"/T" : [PDFValue numberValue:@1112814]
                             }]]];
-    PDFObject* obj = [_syntaxAnalyzer nextSyntaxObject];
-    int k = 0;
-    ++k;
+    [self subTestXRefTable:[PDFXRefTable pdfXRefTableWithSubSections:@[]] trailer:@{@"/Size": @""} offset:0];
 }
 
 @end
