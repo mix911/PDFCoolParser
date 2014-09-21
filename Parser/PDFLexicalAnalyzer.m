@@ -11,12 +11,12 @@
 #define ErrorState(message)\
     {\
         _errorMessage = message;\
-        state = ERROR_STATE;\
+        state = ERROR_LEXEME_STATE;\
     }
 
 #define EndState(pdfType) {\
         state = END_LEXEME_STATE;\
-        *type = pdfType;\
+        outState->current_type = pdfType;\
     }
 
 
@@ -47,9 +47,6 @@ static int isUnderSlashSymbol(char ch)
 
 @interface PDFLexicalAnalyzer()
 {
-    char *_pointer;
-    char *_dataBegin;
-    NSUInteger _len;
     NSString *_errorMessage;
 }
 @end
@@ -61,16 +58,13 @@ static int isUnderSlashSymbol(char ch)
 - (id)initWithData:(NSData *)data
 {
     if (self = [super init]) {
-        _len = data.length;
-        _dataBegin = (char*)data.bytes;
-        _pointer = _dataBegin;
     }
     return self;
 }
 
 enum PDFLexicalAnalyzerStates
 {
-    ERROR_STATE = -1,
+    ERROR_LEXEME_STATE = -1,
     BEGIN_LEXEME_STATE = 0,
     OPEN_TRIANGLE_BRACKET_STATE,
     CLOSE_TRIANGLE_BRACKET_STATE,
@@ -94,27 +88,34 @@ enum PDFLexicalAnalyzerStates
     IN_REAL_NUMBER,
     IN_INTEGRAL_NUMBER_PART_STATE,
     IN_UINTEGRAL_NUMBER_PART_STATE,
-
     END_LEXEME_STATE,
 };
 
-- (const char*)nextLexeme:(NSUInteger*)len type:(enum PDFLexemeTypes*)type;
+- (const char*)nextLexemeByState:(struct pdf_lexical_analyzer_state*)outState
 {
-    *type = PDF_UNKNOWN_LEXEME;
-    *len  = 0;
-    
+    if (outState == NULL) {
+        @throw [NSException exceptionWithName:@"Bad arguments" reason:@"'state' must be not NULL" userInfo:nil];
+    }
+    if (outState->current == NULL) {
+        @throw [NSException exceptionWithName:@"Bad struct pdf_lexical_analyzer_state" reason:@"pdf_lexical_analyzer_state.current must be not NULL" userInfo:nil];
+    }
+    if (outState->end == NULL) {
+        @throw [NSException exceptionWithName:@"Bad struct pdf_lexical_analyzer_state" reason:@"pdf_lexical_analyzer_state.end nust be not NULL" userInfo:nil];
+    }
+    // Default falues
+    outState->current_type = PDF_UNKNOWN_LEXEME;
+    outState->len = 0;
     enum PDFLexicalAnalyzerStates state = BEGIN_LEXEME_STATE;
-    const char* lexeme = NULL;
-    
     int bracketsCounter = 0;
     int dddCount = 0;
-    
-    while (state != ERROR_STATE && state != END_LEXEME_STATE && _pointer - _dataBegin < _len) {
-        
-        char ch = *_pointer;
-        
+    // Find lexeme
+    while (state != ERROR_LEXEME_STATE && state != END_LEXEME_STATE && outState->current != outState->end) {
+        // Get current symbol
+        char ch = *outState->current;
+        // Analyze current state
         switch (state) {
             case BEGIN_LEXEME_STATE:
+                // For current symbol
                 switch (ch) {
                     case '[':
                         state = IN_ARRAY_OPEN_BRACKET_STATE;
@@ -164,8 +165,7 @@ enum PDFLexicalAnalyzerStates
                         }
                         break;
                 }
-                
-                lexeme = _pointer;
+                outState->lexeme = outState->current;
                 break;
                 
             case IN_ARRAY_OPEN_BRACKET_STATE:
@@ -338,28 +338,28 @@ enum PDFLexicalAnalyzerStates
             case IN_LEXEME_STATE:
                 if (isBlankSymbol(ch) || ch == '[' || ch == '(' || ch == '<' || ch == '%' || ch == '/' || ch == ']' || ch == '>' || ch == 0) {
                     state = END_LEXEME_STATE;
-                    if (_pointer - lexeme == 3 && strncmp(lexeme, "obj", 3) == 0) {
-                        *type = PDF_OBJ_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 6 && strncmp(lexeme, "endobj", 6) == 0) {
-                        *type = PDF_ENDOBJ_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 4 && strncmp(lexeme, "xref", 4) == 0) {
-                        *type = PDF_XREF_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 9 && strncmp(lexeme, "startxref", 9) == 0) {
-                        *type = PDF_STARTXREF_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 6 && strncmp(lexeme, "stream", 6) == 0) {
-                        *type = PDF_STREAM_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 9 && strncmp(lexeme, "endstream", 9) == 0) {
-                        *type = PDF_ENDSTREAM_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 4 && strncmp(lexeme, "true", 4) == 0) {
-                        *type = PDF_TRUE_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 5 && strncmp(lexeme, "false", 5) == 0) {
-                        *type = PDF_FALSE_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 7 && strncmp(lexeme, "trailer", 7) == 0) {
-                        *type = PDF_TRAILER_KEYWORD_LEXEME_TYPE;
-                    } else if (_pointer - lexeme == 1 && strncmp(lexeme, "R", 1) == 0) {
-                        *type = PDF_R_KEYWORD_LEXEME;
-                    } else if (_pointer - lexeme == 4 && strncmp(lexeme, "null", 4) == 0) {
-                        *type = PDF_NULL_KEYWORD_LEXEME;
+                    if (outState->current - outState->lexeme == 3 && strncmp(outState->lexeme, "obj", 3) == 0) {
+                        outState->current_type = PDF_OBJ_KEYWORD_LEXEME_TYPE;
+                    } else if (outState->current - outState->lexeme == 6 && strncmp(outState->lexeme, "endobj", 6) == 0) {
+                        outState->current_type = PDF_ENDOBJ_KEYWORD_LEXEME_TYPE;
+                    } else if (outState->current - outState->lexeme == 4 && strncmp(outState->lexeme, "xref", 4) == 0) {
+                        outState->current_type = PDF_XREF_KEYWORD_LEXEME_TYPE;
+                    } else if (outState->current - outState->lexeme == 9 && strncmp(outState->lexeme, "startxref", 9) == 0) {
+                        outState->current_type = PDF_STARTXREF_KEYWORD_LEXEME_TYPE;
+                    } else if (outState->current - outState->lexeme == 6 && strncmp(outState->lexeme, "stream", 6) == 0) {
+                        outState->current_type = PDF_STREAM_KEYWORD_LEXEME_TYPE;
+                    } else if (outState->current - outState->lexeme == 9 && strncmp(outState->lexeme, "endstream", 9) == 0) {
+                        outState->current_type = PDF_ENDSTREAM_KEYWORD_LEXEME_TYPE;
+                    } else if (outState->current - outState->lexeme == 4 && strncmp(outState->lexeme, "true", 4) == 0) {
+                        outState->current_type = PDF_TRUE_KEYWORD_LEXEME_TYPE;
+                    } else if (outState->current - outState->lexeme == 5 && strncmp(outState->lexeme, "false", 5) == 0) {
+                        outState->current_type = PDF_FALSE_KEYWORD_LEXEME_TYPE;
+                    } else if (outState->current - outState->lexeme == 7 && strncmp(outState->lexeme, "trailer", 7) == 0) {
+                        outState->current_type = PDF_TRAILER_KEYWORD_LEXEME_TYPE;
+                    } else if (outState->current - outState->lexeme == 1 && strncmp(outState->lexeme, "R", 1) == 0) {
+                        outState->current_type = PDF_R_KEYWORD_LEXEME;
+                    } else if (outState->current - outState->lexeme == 4 && strncmp(outState->lexeme, "null", 4) == 0) {
+                        outState->current_type = PDF_NULL_KEYWORD_LEXEME;
                     }
                 }
                 break;
@@ -369,37 +369,37 @@ enum PDFLexicalAnalyzerStates
         }
         
         if (state != END_LEXEME_STATE) {
-            ++_pointer;
+            ++outState->current;
         }
     }
     
     if (state == END_LEXEME_STATE) {
-        *len = _pointer - lexeme;
-        return lexeme;
+        outState->len = outState->current - outState->lexeme;
+        return outState->lexeme;
     }
     
     return NULL;
 }
 
-- (NSData*)getAndSkipBytesByCount:(NSUInteger)count
+- (NSData*)getAndSkipBytesByCount:(NSUInteger)count state:(struct pdf_lexical_analyzer_state*)state
 {
     NSData *res = nil;
-    if (_pointer + count > _dataBegin + _len) {
-        res = [NSData dataWithBytes:_pointer length:_dataBegin + _len - _pointer];
-        _pointer += _dataBegin + _len - _pointer;
+    if (state->current + count > state->end) {
+        res = [NSData dataWithBytes:state->current length:state->end - state->current];
+        state->current = state->end;
     } else {
-        res = [NSData dataWithBytes:_pointer length:count];
-        _pointer += count;
+        res = [NSData dataWithBytes:state->current length:count];
+        state->current += count;
     }
     return res;
 }
 
-- (NSUInteger)skipBytesByCount:(NSUInteger)count
+- (NSUInteger)skipBytesByCount:(NSUInteger)count state:(struct pdf_lexical_analyzer_state*)state
 {
-    if (_pointer + count > _dataBegin + _len) {
-        count = _dataBegin + _len - _pointer;
+    if (state->current + count > state->end) {
+        count = state->end - state->current;
     }
-    _pointer += count;
+    state->current += count;
     return count;
 }
 

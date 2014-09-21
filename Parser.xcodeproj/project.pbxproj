@@ -29,6 +29,21 @@
 		B40CEB8319256DC400064464 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B40CEB8219256DC400064464 /* XCTest.framework */; };
 		B40CEB8919256DC400064464 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B40CEB8719256DC400064464 /* InfoPlist.strings */; };
 		B40CEB8B19256DC400064464 /* Parser_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CEB8A19256DC400064464 /* Parser_Tests.m */; };
+		B4C13D33194C9FA6004D1385 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C13D32194C9FA6004D1385 /* libz.dylib */; };
+		B4C13D39194CBC34004D1385 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B40CEB8219256DC400064464 /* XCTest.framework */; };
+		B4C13D3F194CBC34004D1385 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B4C13D3D194CBC34004D1385 /* InfoPlist.strings */; };
+		B4C13D41194CBC34004D1385 /* Parser_Tests_CV.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C13D40194CBC34004D1385 /* Parser_Tests_CV.m */; };
+		B4C13D48194CBC51004D1385 /* PDFXRefSubSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A701943543700801698 /* PDFXRefSubSection.m */; };
+		B4C13D49194CBC51004D1385 /* PDFXRefTable.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A721943543700801698 /* PDFXRefTable.m */; };
+		B4C13D4A194CBC51004D1385 /* PDFRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 19D1B52A193BA1B000F1A2A6 /* PDFRef.m */; };
+		B4C13D4B194CBC51004D1385 /* PDFObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 19AE7302192B329100CEED4F /* PDFObject.m */; };
+		B4C13D4C194CBC51004D1385 /* PDFSyntaxAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C587DF192B144400B65A7D /* PDFSyntaxAnalyzer.m */; };
+		B4C13D4D194CBC51004D1385 /* PDFLexicalAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CE98E19264926007C8E04 /* PDFLexicalAnalyzer.m */; };
+		B4C13D4E194CBC51004D1385 /* PDFComment.m in Sources */ = {isa = PBXBuildFile; fileRef = B4035DEE192236FE007ED64D /* PDFComment.m */; };
+		B4C13D4F194CBC51004D1385 /* PDFTrue.m in Sources */ = {isa = PBXBuildFile; fileRef = 19880770192A2E4700D2770D /* PDFTrue.m */; };
+		B4C13D50194CBC51004D1385 /* PDFFalse.m in Sources */ = {isa = PBXBuildFile; fileRef = 19880774192A2E4F00D2770D /* PDFFalse.m */; };
+		B4C13D51194CBC51004D1385 /* PDFStack.m in Sources */ = {isa = PBXBuildFile; fileRef = 19CC655F192B7BBA00F191E5 /* PDFStack.m */; };
+		B4C13D52194CBC51004D1385 /* PDFValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 198F7CC81939CD25005FEBAB /* PDFValue.m */; };
 		B4FB1A731943543700801698 /* PDFXRefSubSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A701943543700801698 /* PDFXRefSubSection.m */; };
 		B4FB1A741943543700801698 /* PDFXRefSubSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A701943543700801698 /* PDFXRefSubSection.m */; };
 		B4FB1A751943543700801698 /* PDFXRefTable.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FB1A721943543700801698 /* PDFXRefTable.m */; };
@@ -37,6 +52,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		B40CEB8D19256DC400064464 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 198DDE80191E279B00B11929 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 198DDE87191E279B00B11929;
+			remoteInfo = Parser;
+		};
+		B4C13D43194CBC34004D1385 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 198DDE80191E279B00B11929 /* Project object */;
 			proxyType = 1;
@@ -86,6 +108,12 @@
 		B40CEB8819256DC400064464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B40CEB8A19256DC400064464 /* Parser_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Parser_Tests.m; sourceTree = "<group>"; };
 		B40CEB8C19256DC400064464 /* Parser Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Parser Tests-Prefix.pch"; sourceTree = "<group>"; };
+		B4C13D32194C9FA6004D1385 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		B4C13D38194CBC34004D1385 /* Parser Tests CV.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Parser Tests CV.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4C13D3C194CBC34004D1385 /* Parser Tests CV-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Parser Tests CV-Info.plist"; sourceTree = "<group>"; };
+		B4C13D3E194CBC34004D1385 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B4C13D40194CBC34004D1385 /* Parser_Tests_CV.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Parser_Tests_CV.m; sourceTree = "<group>"; };
+		B4C13D42194CBC34004D1385 /* Parser Tests CV-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Parser Tests CV-Prefix.pch"; sourceTree = "<group>"; };
 		B4FB1A6F1943543700801698 /* PDFXRefSubSection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFXRefSubSection.h; sourceTree = "<group>"; };
 		B4FB1A701943543700801698 /* PDFXRefSubSection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFXRefSubSection.m; sourceTree = "<group>"; };
 		B4FB1A711943543700801698 /* PDFXRefTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFXRefTable.h; sourceTree = "<group>"; };
@@ -97,6 +125,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4C13D33194C9FA6004D1385 /* libz.dylib in Frameworks */,
 				198DDE8C191E279B00B11929 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -109,6 +138,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B4C13D35194CBC34004D1385 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B4C13D39194CBC34004D1385 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -117,6 +154,7 @@
 			children = (
 				198DDE8D191E279B00B11929 /* Parser */,
 				B40CEB8419256DC400064464 /* Parser Tests */,
+				B4C13D3A194CBC34004D1385 /* Parser Tests CV */,
 				198DDE8A191E279B00B11929 /* Frameworks */,
 				198DDE89191E279B00B11929 /* Products */,
 			);
@@ -127,6 +165,7 @@
 			children = (
 				198DDE88191E279B00B11929 /* Parser */,
 				B40CEB8119256DC400064464 /* Parser Tests.xctest */,
+				B4C13D38194CBC34004D1385 /* Parser Tests CV.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -134,6 +173,7 @@
 		198DDE8A191E279B00B11929 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B4C13D32194C9FA6004D1385 /* libz.dylib */,
 				198DDE8B191E279B00B11929 /* Foundation.framework */,
 				B40CEB8219256DC400064464 /* XCTest.framework */,
 			);
@@ -198,6 +238,25 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		B4C13D3A194CBC34004D1385 /* Parser Tests CV */ = {
+			isa = PBXGroup;
+			children = (
+				B4C13D40194CBC34004D1385 /* Parser_Tests_CV.m */,
+				B4C13D3B194CBC34004D1385 /* Supporting Files */,
+			);
+			path = "Parser Tests CV";
+			sourceTree = "<group>";
+		};
+		B4C13D3B194CBC34004D1385 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				B4C13D3C194CBC34004D1385 /* Parser Tests CV-Info.plist */,
+				B4C13D3D194CBC34004D1385 /* InfoPlist.strings */,
+				B4C13D42194CBC34004D1385 /* Parser Tests CV-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -236,16 +295,37 @@
 			productReference = B40CEB8119256DC400064464 /* Parser Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		B4C13D37194CBC34004D1385 /* Parser Tests CV */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B4C13D45194CBC34004D1385 /* Build configuration list for PBXNativeTarget "Parser Tests CV" */;
+			buildPhases = (
+				B4C13D34194CBC34004D1385 /* Sources */,
+				B4C13D35194CBC34004D1385 /* Frameworks */,
+				B4C13D36194CBC34004D1385 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B4C13D44194CBC34004D1385 /* PBXTargetDependency */,
+			);
+			name = "Parser Tests CV";
+			productName = "Parser Tests CV";
+			productReference = B4C13D38194CBC34004D1385 /* Parser Tests CV.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		198DDE80191E279B00B11929 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = Ptenster;
 				TargetAttributes = {
 					B40CEB8019256DC400064464 = {
+						TestTargetID = 198DDE87191E279B00B11929;
+					};
+					B4C13D37194CBC34004D1385 = {
 						TestTargetID = 198DDE87191E279B00B11929;
 					};
 				};
@@ -264,6 +344,7 @@
 			targets = (
 				198DDE87191E279B00B11929 /* Parser */,
 				B40CEB8019256DC400064464 /* Parser Tests */,
+				B4C13D37194CBC34004D1385 /* Parser Tests CV */,
 			);
 		};
 /* End PBXProject section */
@@ -274,6 +355,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				B40CEB8919256DC400064464 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B4C13D36194CBC34004D1385 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B4C13D3F194CBC34004D1385 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +406,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B4C13D34194CBC34004D1385 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B4C13D48194CBC51004D1385 /* PDFXRefSubSection.m in Sources */,
+				B4C13D4F194CBC51004D1385 /* PDFTrue.m in Sources */,
+				B4C13D49194CBC51004D1385 /* PDFXRefTable.m in Sources */,
+				B4C13D4A194CBC51004D1385 /* PDFRef.m in Sources */,
+				B4C13D52194CBC51004D1385 /* PDFValue.m in Sources */,
+				B4C13D4C194CBC51004D1385 /* PDFSyntaxAnalyzer.m in Sources */,
+				B4C13D4E194CBC51004D1385 /* PDFComment.m in Sources */,
+				B4C13D51194CBC51004D1385 /* PDFStack.m in Sources */,
+				B4C13D50194CBC51004D1385 /* PDFFalse.m in Sources */,
+				B4C13D4B194CBC51004D1385 /* PDFObject.m in Sources */,
+				B4C13D41194CBC34004D1385 /* Parser_Tests_CV.m in Sources */,
+				B4C13D4D194CBC51004D1385 /* PDFLexicalAnalyzer.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -325,6 +433,11 @@
 			target = 198DDE87191E279B00B11929 /* Parser */;
 			targetProxy = B40CEB8D19256DC400064464 /* PBXContainerItemProxy */;
 		};
+		B4C13D44194CBC34004D1385 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 198DDE87191E279B00B11929 /* Parser */;
+			targetProxy = B4C13D43194CBC34004D1385 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -332,6 +445,14 @@
 			isa = PBXVariantGroup;
 			children = (
 				B40CEB8819256DC400064464 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		B4C13D3D194CBC34004D1385 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B4C13D3E194CBC34004D1385 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -465,6 +586,46 @@
 			};
 			name = Release;
 		};
+		B4C13D46194CBC34004D1385 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Parser Tests CV/Parser Tests CV-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "Parser Tests CV/Parser Tests CV-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		B4C13D47194CBC34004D1385 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Parser Tests CV/Parser Tests CV-Prefix.pch";
+				INFOPLIST_FILE = "Parser Tests CV/Parser Tests CV-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -491,6 +652,15 @@
 			buildConfigurations = (
 				B40CEB8F19256DC400064464 /* Debug */,
 				B40CEB9019256DC400064464 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B4C13D45194CBC34004D1385 /* Build configuration list for PBXNativeTarget "Parser Tests CV" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B4C13D46194CBC34004D1385 /* Debug */,
+				B4C13D47194CBC34004D1385 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

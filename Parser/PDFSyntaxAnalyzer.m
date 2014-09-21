@@ -73,6 +73,7 @@ enum PDFSyntaxAnalyzerStates
 {
     PDFLexicalAnalyzer *_lexicalAnalyzer;
     NSString *_errorMessage;
+    struct pdf_lexical_analyzer_state _pdf_state;
 }
 
 @property (retain) NSString *errorMessage;
@@ -88,6 +89,8 @@ enum PDFSyntaxAnalyzerStates
     self = [super init];
     if (self) {
         _lexicalAnalyzer = [[PDFLexicalAnalyzer alloc] initWithData:data];
+        _pdf_state.current = (char*)data.bytes;
+        _pdf_state.end = (char*)(data.length + data.length);
     }
     return self;
 }
@@ -119,10 +122,10 @@ enum PDFSyntaxAnalyzerStates
     NSUInteger trailerOffset = 0;
     
     while (state != END_STATE && state != ERROR_STATE) {
-        
-        enum PDFLexemeTypes type = PDF_UNKNOWN_LEXEME;
-        NSUInteger len = 0;
-        const char* lexeme = [_lexicalAnalyzer nextLexeme:&len type:&type];
+
+        const char* lexeme = [_lexicalAnalyzer nextLexemeByState:&_pdf_state];
+        enum PDFLexemeTypes type = _pdf_state.current_type;
+        NSUInteger len = _pdf_state.len;
         
         switch (state) {
             case BEGIN_STATE:
@@ -275,8 +278,8 @@ enum PDFSyntaxAnalyzerStates
                                 if ([numberLength isLessThan:@0]) {
                                     ErrorState(@"For stream length must me unsigned integer number");
                                 } else {
-                                    [_lexicalAnalyzer skipBytesByCount:1];
-                                    stream = [_lexicalAnalyzer getAndSkipBytesByCount:numberLength.unsignedIntegerValue];
+                                    [_lexicalAnalyzer skipBytesByCount:1 state:&_pdf_state];
+                                    stream = [_lexicalAnalyzer getAndSkipBytesByCount:numberLength.unsignedIntegerValue state:&_pdf_state];
                                     state = IN_OBJECT_AFTER_STREAM_STATE;
                                 }
                             }
@@ -513,10 +516,11 @@ enum PDFSyntaxAnalyzerStates
                     case PDF_UINT_NUMBER_TYPE:
                         xrefLastObjectNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
                         state = IN_XREF_NEED_FIRST_OBJECT_NUMBER_STATE;
-                        [_lexicalAnalyzer skipBytesByCount:2];
+                        [_lexicalAnalyzer skipBytesByCount:2 state:&_pdf_state];
                         xrefSection = [PDFXRefSubSection pdfXRefSectionWithFirstObjectNumber:xrefFirstObjectNumber
                                                                          lastObjectNumber:xrefLastObjectNumber
-                                                                                     data:[_lexicalAnalyzer getAndSkipBytesByCount:19 * xrefLastObjectNumber]];
+                                                                                     data:[_lexicalAnalyzer getAndSkipBytesByCount:19 * xrefLastObjectNumber
+                                                                                                                             state:&_pdf_state]];
                         [subTables addObject:xrefSection];
                         break;
                     default:

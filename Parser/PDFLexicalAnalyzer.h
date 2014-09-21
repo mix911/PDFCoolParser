@@ -36,6 +36,14 @@ enum PDFLexemeTypes
     
     PDF_UNKNOWN_LEXEME,                 // Лексема неопределенного типа
 };
+struct pdf_lexical_analyzer_state
+{
+    char *current;
+    char *end;
+    char *lexeme;
+    size_t len;
+    enum PDFLexemeTypes current_type;
+};
 /**
  * Лексический анализатор. Ожидаемые данные должны быть закодированны в ascii, каждый символ принимает значения в диапозоне 0..127.
  * Данные должны оканчиваться байтом со значением 0.
@@ -53,7 +61,7 @@ enum PDFLexemeTypes
  * @param type параметр для получения типа лексемы. Типы лексем определены в enum PDFLexemeTypes. В случае лексической ошибки значение type будет PDF_UNKNOWN_LEXEME.
  * @return const char* Лексема, длинны len и типа type.
  */
-- (const char*)nextLexeme:(NSUInteger*)len type:(enum PDFLexemeTypes*)type;
+- (const char*)nextLexemeByState:(struct pdf_lexical_analyzer_state*)state;
 /**
  * В сообщение о лексической ошибке.
  */
@@ -63,12 +71,12 @@ enum PDFLexemeTypes
  * @param count Количество байт, которое нужно пропустить
  * @return NSData* пропущенные байты. NSData.length <= count, в зависимости от того, сколько байт удалось пропустить
  */
-- (NSData*)getAndSkipBytesByCount:(NSUInteger)count;
+- (NSData*)getAndSkipBytesByCount:(NSUInteger)count state:(struct pdf_lexical_analyzer_state*)state;
 /**
  * Пропустить count байт. Метод нужен для того, чтобы пропускать содержимое stream'ов.
  * @param count Количество байт, которое нужно пропустить
  * @return NSData* пропущенные байты. NSData.length <= count, в зависимости от того, сколько байт удалось пропустить
  */
-- (NSUInteger)skipBytesByCount:(NSUInteger)count;
+- (NSUInteger)skipBytesByCount:(NSUInteger)count state:(struct pdf_lexical_analyzer_state*)state;
 
 @end
