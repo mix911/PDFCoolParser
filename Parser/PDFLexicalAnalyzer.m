@@ -55,13 +55,6 @@ static int isUnderSlashSymbol(char ch)
 
 @synthesize errorMessage = _errorMessage;
 
-- (id)initWithData:(NSData *)data
-{
-    if (self = [super init]) {
-    }
-    return self;
-}
-
 enum PDFLexicalAnalyzerStates
 {
     ERROR_LEXEME_STATE = -1,
@@ -384,7 +377,7 @@ enum PDFLexicalAnalyzerStates
 - (NSData*)getAndSkipBytesByCount:(NSUInteger)count state:(struct pdf_lexical_analyzer_state*)state
 {
     NSData *res = nil;
-    if (state->current + count > state->end) {
+    if (state->end - state->current <= count) {
         res = [NSData dataWithBytes:state->current length:state->end - state->current];
         state->current = state->end;
     } else {
@@ -396,7 +389,7 @@ enum PDFLexicalAnalyzerStates
 
 - (NSUInteger)skipBytesByCount:(NSUInteger)count state:(struct pdf_lexical_analyzer_state*)state
 {
-    if (state->current + count > state->end) {
+    if (state->end - state->current <= count) {
         count = state->end - state->current;
     }
     state->current += count;

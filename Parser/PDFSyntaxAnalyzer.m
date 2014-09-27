@@ -88,7 +88,7 @@ enum PDFSyntaxAnalyzerStates
 {
     self = [super init];
     if (self) {
-        _lexicalAnalyzer = [[PDFLexicalAnalyzer alloc] initWithData:data];
+        _lexicalAnalyzer = [[PDFLexicalAnalyzer alloc] init];
         _pdf_state.current = (char*)data.bytes;
         _pdf_state.end = (char*)(data.length + data.length);
     }

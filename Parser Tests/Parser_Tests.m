@@ -99,7 +99,7 @@ static char sectionData[] = "0000000016 00000 n\r"
     _lexicalAnalyzerData = [[NSData alloc] initWithBytes:text length:sizeof(text)];
     _pdf_state.current = (char*)_lexicalAnalyzerData.bytes;
     _pdf_state.end = (char*)(_lexicalAnalyzerData.bytes + _lexicalAnalyzerData.length);
-    _pdfLexicalAnalyzer = [[PDFLexicalAnalyzer alloc] initWithData:_lexicalAnalyzerData];
+    _pdfLexicalAnalyzer = [[PDFLexicalAnalyzer alloc] init];
     
     _syntaxAnalyzerData = [NSData dataWithContentsOfFile:@"/Users/demo/Documents/Projects/PDFCoolParser/test_in.pdf"];
     char* buffer = malloc(_syntaxAnalyzerData.length+1);
@@ -356,14 +356,14 @@ static char sectionData[] = "0000000016 00000 n\r"
                                                                              nil]]
                                             }]]
                             }]]];
-//    [self subTestObject:326
-//                       :0
-//                       :[PDFValue dictionaryValue:
-//                         [NSMutableDictionary dictionaryWithDictionary:
-//                          @{
-//                            @"/Length" : [PDFValue numberValue:@10]
-//                            }]]
-//                       :[NSData dataWithBytes:"1234567890" length:10]];
+    [self subTestObject:326
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/Length" : [PDFValue numberValue:@10]
+                            }]]
+                       :[NSData dataWithBytes:"1234567890" length:10]];
 //    [self subTestObject:325
 //                       :0
 //                       :[PDFValue dictionaryValue:
