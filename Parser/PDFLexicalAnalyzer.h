@@ -36,6 +36,9 @@ enum PDFLexemeTypes
     
     PDF_UNKNOWN_LEXEME,                 // Лексема неопределенного типа
 };
+/**
+ *
+ */
 struct pdf_lexical_analyzer_state
 {
     char *current;
