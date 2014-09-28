@@ -47,6 +47,17 @@
     XCTAssertEqualObjects([_syntaxAnalyzer nextSyntaxObject], [PDFObject pdfComment:comment], @"");
 }
 
+- (void)subTestObjectNoStream:(NSUInteger)objectNumber :(NSUInteger)generatedNumber :(PDFValue*)value
+{
+    PDFObject* srcObj = [_syntaxAnalyzer nextSyntaxObject];
+    if (srcObj == nil) {
+        XCTAssert(NO, @"Error: %@", _syntaxAnalyzer.errorMessage);
+        return;
+    }
+    PDFObject* tmpObj = [PDFObject pdfObjectWithValue:value objectNumber:objectNumber generatedNumber:generatedNumber];
+    XCTAssert([srcObj compairWithoutStream:tmpObj], @"");
+}
+
 - (void)subTestObject:(NSUInteger)objectNumber :(NSUInteger)generatedNumber :(PDFValue*)value
 {
     PDFObject* srcObj = [_syntaxAnalyzer nextSyntaxObject];
@@ -131,6 +142,44 @@
                                                                  nil]],
                             @"/Contents" : [PDFValue pdfRefValueWithObjectNumber:14 generatedNumber:0]
                             }]]];
+    [self subTestObjectNoStream:14
+                               :0
+                               :[PDFValue dictionaryValue:
+                                 [NSMutableDictionary dictionaryWithDictionary:
+                                  @{
+                                    @"/Filter" : [PDFValue nameValue:@"/FlateDecode"],
+                                    @"/Length" : [PDFValue numberValue:@(6480)]
+                                    }]]];
+    [self subTestObjectNoStream:11
+                               :0
+                               :[PDFValue dictionaryValue:
+                                 [NSMutableDictionary dictionaryWithDictionary:
+                                  @{
+                                    @"/Type": [PDFValue nameValue:@"/ExtGState"],
+                                    @"/CA"  : [PDFValue numberValue:@(1)],
+                                    @"/ca"  : [PDFValue numberValue:@(1)],
+                                    @"/LC"  : [PDFValue numberValue:@(0)],
+                                    @"/LJ"  : [PDFValue numberValue:@(0)],
+                                    @"/LW"  : [PDFValue numberValue:@(0)],
+                                    @"/ML"  : [PDFValue numberValue:@(4)],
+                                    @"/SA"  : [PDFValue trueValue],
+                                    @"/BM"  : [PDFValue nameValue:@"/Normal"]
+                                    }]]];
+    [self subTestObjectNoStream:12
+                               :0
+                               :[PDFValue dictionaryValue:
+                                 [NSMutableDictionary dictionaryWithDictionary:
+                                  @{
+                                    @"/Type"            : [PDFValue nameValue:@"/Font"],
+                                    @"/Subtype"         : [PDFValue nameValue:@"/Type0"],
+                                    @"/BaseFont"        : [PDFValue nameValue:@"/CourierNewPS-BoldMT"],
+                                    @"/Encoding"        : [PDFValue nameValue:@"/Identity-H"],
+                                    @"/DescendantFonts" : [PDFValue arrayValue:
+                                                           [NSMutableArray arrayWithObjects:
+                                                            [PDFValue pdfRefValueWithObjectNumber:15 generatedNumber:0],
+                                                            nil]],
+                                    @"/ToUnicode"       : [PDFValue pdfRefValueWithObjectNumber:16 generatedNumber:0]
+                                    }]]];
 }
 
 @end

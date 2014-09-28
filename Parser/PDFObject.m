@@ -109,6 +109,25 @@
     }
 }
 
+- (BOOL)compairWithoutStream:(PDFObject *)other
+{
+    switch (self.type) {
+        case PDF_COMMENT_TYPE:
+            return other.type == PDF_COMMENT_TYPE && [self.comment isEqualToString:other.comment];
+        case PDF_OBJECT_TYPE:
+            return  (other.type == PDF_OBJECT_TYPE) &&
+            (self.objectNumber == other.objectNumber) &&
+            (self.generatedNumber == other.generatedNumber) &&
+            (self.value  ? [self.value isEqualToPDFValue:other.value]  : other.value  == nil);
+        case PDF_XREF_TYPE:
+            return  (other.type == PDF_XREF_TYPE) &&
+            (self.offset == other.offset) &&
+            ([self isTrailerEqualToTrailer:other.trailer]) &&
+            ([self.xrefTable isEqualToXRefTable:other.xrefTable]);
+        default:
+            return NO;
+    }
+}
 - (BOOL)isTrailerEqualToTrailer:(NSDictionary*)trailer
 {
     if (self.trailer.count != trailer.count) {

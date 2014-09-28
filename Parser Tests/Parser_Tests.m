@@ -364,74 +364,74 @@ static char sectionData[] = "0000000016 00000 n\r"
                             @"/Length" : [PDFValue numberValue:@10]
                             }]]
                        :[NSData dataWithBytes:"1234567890" length:10]];
-//    [self subTestObject:325
-//                       :0
-//                       :[PDFValue dictionaryValue:
-//                         [NSMutableDictionary dictionaryWithDictionary:
-//                          @{
-//                            @"/Linearized" : [PDFValue numberValue:@1],
-//                            @"/O" : [PDFValue numberValue:@328],
-//                            @"/H" : [PDFValue arrayValue:
-//                                     [NSMutableArray arrayWithObjects:
-//                                      [PDFValue numberValue:@1317],
-//                                      [PDFValue numberValue:@2127],
-//                                      nil]],
-//                            @"/L" : [PDFValue numberValue:@1119433],
-//                            @"/E" : [PDFValue numberValue:@54084],
-//                            @"/N" : [PDFValue numberValue:@38],
-//                            @"/T" : [PDFValue numberValue:@1112814]
-//                            }]]];
-//    [self subTestXRefTable:[PDFXRefTable pdfXRefTableWithSubSections:
-//                            @[
-//                              [PDFXRefSubSection pdfXRefSectionWithFirstObjectNumber:325
-//                                                                 lastObjectNumber:36
-//                                                                             data:[NSData dataWithBytes:sectionData length:sizeof(sectionData)-1]]
-//                              ]]
-//                   trailer:@{
-//                             @"/Size" : [PDFValue numberValue:@361],
-//                             @"/Info" : [PDFValue pdfRefValueWithObjectNumber:316 generatedNumber:0],
-//                             @"/Root" : [PDFValue pdfRefValueWithObjectNumber:326 generatedNumber:0],
-//                             @"/Prev" : [PDFValue numberValue:@1112803],
-//                             @"/ID" : [PDFValue arrayValue:
-//                                       [NSMutableArray arrayWithObjects:
-//                                        [PDFValue hexStringValue:@"<7a6636ff523a802804b8359a7bb65124>"],
-//                                        [PDFValue hexStringValue:@"<3bc21a09cd84580eea4371ce34ffa70b>"],
-//                                        nil]]
-//                             }
-//                    offset:0];
-//    [self subTestObject:326
-//                       :0
-//                       :[PDFValue dictionaryValue:
-//                         [NSMutableDictionary dictionaryWithDictionary:
-//                          @{
-//                            @"/Type" : [PDFValue nameValue:@"/Catalog"],
-//                            @"/Pages" : [PDFValue pdfRefValueWithObjectNumber:315 generatedNumber:0],
-//                            @"/Metadata" : [PDFValue pdfRefValueWithObjectNumber:317 generatedNumber:0],
-//                            @"/AcroForm" : [PDFValue pdfRefValueWithObjectNumber:327 generatedNumber:0],
-//                            }]]];
-//    [self subTestObject:327
-//                       :0
-//                       :[PDFValue dictionaryValue:
-//                         [NSMutableDictionary dictionaryWithDictionary:
-//                          @{
-//                            @"/Fields" : [PDFValue arrayValue:[NSMutableArray array]],
-//                            @"/DR" : [PDFValue dictionaryValue:
-//                                      [NSMutableDictionary dictionaryWithDictionary:
-//                                       @{
-//                                         @"/Font" : [PDFValue dictionaryValue:
-//                                                     [NSMutableDictionary dictionaryWithDictionary:
-//                                                      @{
-//                                                        @"/ZaDb" : [PDFValue pdfRefValueWithObjectNumber:312 generatedNumber:0],
-//                                                        @"/Helv" : [PDFValue pdfRefValueWithObjectNumber:313 generatedNumber:0]
-//                                                        }]],
-//                                         @"/Encoding" : [PDFValue dictionaryValue:
-//                                                         [NSMutableDictionary dictionaryWithDictionary:
-//                                                          @{
-//                                                            @"/PDFDocEncoding" : [PDFValue pdfRefValueWithObjectNumber:314 generatedNumber:0]
-//                                                            }]]
-//                                         }]],
-//                            @"/DA" : [PDFValue stringValue:@"(/Helv 0 Tf 0 g )"]
-//                            }]]];
+    [self subTestObject:325
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/Linearized" : [PDFValue numberValue:@1],
+                            @"/O" : [PDFValue numberValue:@328],
+                            @"/H" : [PDFValue arrayValue:
+                                     [NSMutableArray arrayWithObjects:
+                                      [PDFValue numberValue:@1317],
+                                      [PDFValue numberValue:@2127],
+                                      nil]],
+                            @"/L" : [PDFValue numberValue:@1119433],
+                            @"/E" : [PDFValue numberValue:@54084],
+                            @"/N" : [PDFValue numberValue:@38],
+                            @"/T" : [PDFValue numberValue:@1112814]
+                            }]]];
+    [self subTestXRefTable:[PDFXRefTable pdfXRefTableWithSubSections:
+                            @[
+                              [PDFXRefSubSection pdfXRefSectionWithFirstObjectNumber:325
+                                                                 lastObjectNumber:36
+                                                                             data:[NSData dataWithBytes:sectionData length:sizeof(sectionData)-1]]
+                              ]]
+                   trailer:@{
+                             @"/Size" : [PDFValue numberValue:@361],
+                             @"/Info" : [PDFValue pdfRefValueWithObjectNumber:316 generatedNumber:0],
+                             @"/Root" : [PDFValue pdfRefValueWithObjectNumber:326 generatedNumber:0],
+                             @"/Prev" : [PDFValue numberValue:@1112803],
+                             @"/ID" : [PDFValue arrayValue:
+                                       [NSMutableArray arrayWithObjects:
+                                        [PDFValue hexStringValue:@"<7a6636ff523a802804b8359a7bb65124>"],
+                                        [PDFValue hexStringValue:@"<3bc21a09cd84580eea4371ce34ffa70b>"],
+                                        nil]]
+                             }
+                    offset:0];
+    [self subTestObject:326
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/Type" : [PDFValue nameValue:@"/Catalog"],
+                            @"/Pages" : [PDFValue pdfRefValueWithObjectNumber:315 generatedNumber:0],
+                            @"/Metadata" : [PDFValue pdfRefValueWithObjectNumber:317 generatedNumber:0],
+                            @"/AcroForm" : [PDFValue pdfRefValueWithObjectNumber:327 generatedNumber:0],
+                            }]]];
+    [self subTestObject:327
+                       :0
+                       :[PDFValue dictionaryValue:
+                         [NSMutableDictionary dictionaryWithDictionary:
+                          @{
+                            @"/Fields" : [PDFValue arrayValue:[NSMutableArray array]],
+                            @"/DR" : [PDFValue dictionaryValue:
+                                      [NSMutableDictionary dictionaryWithDictionary:
+                                       @{
+                                         @"/Font" : [PDFValue dictionaryValue:
+                                                     [NSMutableDictionary dictionaryWithDictionary:
+                                                      @{
+                                                        @"/ZaDb" : [PDFValue pdfRefValueWithObjectNumber:312 generatedNumber:0],
+                                                        @"/Helv" : [PDFValue pdfRefValueWithObjectNumber:313 generatedNumber:0]
+                                                        }]],
+                                         @"/Encoding" : [PDFValue dictionaryValue:
+                                                         [NSMutableDictionary dictionaryWithDictionary:
+                                                          @{
+                                                            @"/PDFDocEncoding" : [PDFValue pdfRefValueWithObjectNumber:314 generatedNumber:0]
+                                                            }]]
+                                         }]],
+                            @"/DA" : [PDFValue stringValue:@"(/Helv 0 Tf 0 g )"]
+                            }]]];
 }
 
 @end

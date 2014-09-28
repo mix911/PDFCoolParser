@@ -267,7 +267,7 @@ enum PDFLexicalAnalyzerStates
                 break;
                 
             case IN_NAME_STATE:
-                if (isBlankSymbol(ch) || ch == '[' || ch == '(' || ch == '<' || ch == '%' || ch == '/' || ch == 0) {
+                if (isBlankSymbol(ch) || ch == '[' || ch == '(' || ch == '<' || ch == '%' || ch == '/' || ch == 0 || ch == '>' || ch == ']') {
                     EndState(PDF_NAME_LEXEME_TYPE);
                 }
                 break;

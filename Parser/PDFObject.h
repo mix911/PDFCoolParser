@@ -45,5 +45,6 @@ enum PDFObjectTypes
 
 @property (readonly) enum PDFObjectTypes type;
 
+- (BOOL) compairWithoutStream:(PDFObject*)other;
 
 @end
