@@ -19,6 +19,7 @@
         _outState->current_type = pdfType;\
     }
 
+#define AddToTable(i, method) _statesTable[i] = [NSValue valueWithPointer:@selector(method)]
 
 static int isBlankSymbol(char ch)
 {
@@ -87,8 +88,6 @@ enum PDFLexicalAnalyzerStates
     NSMutableArray* _statesTable;
 }
 @end
-
-#define AddToTable(i, method) _statesTable[i] = [NSValue valueWithPointer:@selector(method)]
 
 @implementation PDFLexicalAnalyzer
 
@@ -479,3 +478,4 @@ enum PDFLexicalAnalyzerStates
 
 #undef EndState
 #undef ErrorState
+#undef AddToTable
