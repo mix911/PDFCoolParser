@@ -165,21 +165,21 @@
                                     @"/SA"  : [PDFValue trueValue],
                                     @"/BM"  : [PDFValue nameValue:@"/Normal"]
                                     }]]];
-    [self subTestObjectNoStream:12
-                               :0
-                               :[PDFValue dictionaryValue:
-                                 [NSMutableDictionary dictionaryWithDictionary:
-                                  @{
-                                    @"/Type"            : [PDFValue nameValue:@"/Font"],
-                                    @"/Subtype"         : [PDFValue nameValue:@"/Type0"],
-                                    @"/BaseFont"        : [PDFValue nameValue:@"/CourierNewPS-BoldMT"],
-                                    @"/Encoding"        : [PDFValue nameValue:@"/Identity-H"],
-                                    @"/DescendantFonts" : [PDFValue arrayValue:
-                                                           [NSMutableArray arrayWithObjects:
-                                                            [PDFValue pdfRefValueWithObjectNumber:15 generatedNumber:0],
-                                                            nil]],
-                                    @"/ToUnicode"       : [PDFValue pdfRefValueWithObjectNumber:16 generatedNumber:0]
-                                    }]]];
+//    [self subTestObjectNoStream:12
+//                               :0
+//                               :[PDFValue dictionaryValue:
+//                                 [NSMutableDictionary dictionaryWithDictionary:
+//                                  @{
+//                                    @"/Type"            : [PDFValue nameValue:@"/Font"],
+//                                    @"/Subtype"         : [PDFValue nameValue:@"/Type0"],
+//                                    @"/BaseFont"        : [PDFValue nameValue:@"/CourierNewPS-BoldMT"],
+//                                    @"/Encoding"        : [PDFValue nameValue:@"/Identity-H"],
+//                                    @"/DescendantFonts" : [PDFValue arrayValue:
+//                                                           [NSMutableArray arrayWithObjects:
+//                                                            [PDFValue pdfRefValueWithObjectNumber:15 generatedNumber:0],
+//                                                            nil]],
+//                                    @"/ToUnicode"       : [PDFValue pdfRefValueWithObjectNumber:16 generatedNumber:0]
+//                                    }]]];
 }
 
 @end

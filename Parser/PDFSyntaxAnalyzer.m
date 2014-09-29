@@ -18,7 +18,7 @@
 #import "PDFXRefSubSection.h"
 
 #define ErrorState(message) {\
-    state = ERROR_STATE;\
+    _state = ERROR_STATE;\
     _errorMessage = message;\
 }
 
@@ -65,15 +65,36 @@ enum PDFSyntaxAnalyzerStates
     IN_TRAILER_AFTER_DICTIONARY_STATE,
     AFTER_STARTXREF_STATE,
     AFTER_TRAILER_OFFSET_STATE,
-    
     END_STATE,
+    COUNT_STATES,
 };
 
 @interface PDFSyntaxAnalyzer()
 {
-    PDFLexicalAnalyzer *_lexicalAnalyzer;
-    NSString *_errorMessage;
-    struct pdf_lexical_analyzer_state _pdf_state;
+    PDFLexicalAnalyzer*                 _lexicalAnalyzer;
+    NSString*                           _errorMessage;
+    struct pdf_lexical_analyzer_state   _pdf_state;
+    PDFObject*                          _pdfObj;
+    PDFValue *                          _pdfValue;
+    NSUInteger                          _objectNumber;
+    NSUInteger                          _generatedNumber;
+    NSUInteger                          _refObjectNumber;
+    NSUInteger                          _refGeneratedNumber;
+    NSMutableArray*                     _array;
+    NSMutableDictionary*                _dictionary;
+    PDFStack*                           _stack;
+    NSString*                           _key;
+    NSData*                             _stream;
+    NSUInteger                          _xrefFirstObjectNumber;
+    NSUInteger                          _xrefLastObjectNumber;
+    NSMutableArray*                     _subTables;
+    PDFXRefSubSection*                  _xrefSection;
+    PDFXRefTable*                       _xrefTable;
+    NSUInteger                          _trailerOffset;
+    enum PDFSyntaxAnalyzerStates        _state;
+    const char*                         _lexeme;
+    enum PDFLexemeTypes                 _type;
+    NSUInteger                          _len;
 }
 
 @property (retain) NSString *errorMessage;
@@ -88,9 +109,9 @@ enum PDFSyntaxAnalyzerStates
 {
     self = [super init];
     if (self) {
-        _lexicalAnalyzer = [[PDFLexicalAnalyzer alloc] init];
-        _pdf_state.current = (char*)data.bytes;
-        _pdf_state.end = (char*)(data.length + data.length);
+        _lexicalAnalyzer    = [[PDFLexicalAnalyzer alloc] init];
+        _pdf_state.current  = (char*)data.bytes;
+        _pdf_state.end      = (char*)(data.length + data.length);
     }
     return self;
 }
@@ -101,692 +122,813 @@ enum PDFSyntaxAnalyzerStates
     [super dealloc];
 }
 
-- (PDFObject*)nextSyntaxObjectIterWithState:(enum PDFSyntaxAnalyzerStates)state
+- (void)beginState
 {
-    PDFObject *pdfObj = nil;
-    PDFValue *pdfValue = nil;
-    NSUInteger objectNumber = 0;
-    NSUInteger generatedNumber = 0;
-    NSUInteger refObjectNumber = 0;
-    NSUInteger refGeneratedNumber = 0;
-    NSMutableArray *array = nil;
-    NSMutableDictionary *dictionary = nil;
-    PDFStack* stack = [PDFStack pdfStack];
-    NSString* key = nil;
-    NSData *stream = nil;
-    NSUInteger xrefFirstObjectNumber = 0;
-    NSUInteger xrefLastObjectNumber = 0;
-    NSMutableArray *subTables = [NSMutableArray array];
-    PDFXRefSubSection *xrefSection = nil;
-    PDFXRefTable *xrefTable = nil;
-    NSUInteger trailerOffset = 0;
-    
-    while (state != END_STATE && state != ERROR_STATE) {
+    switch (_type) {
+        case PDF_COMMENT_LEXEME_TYPE:
+            _pdfObj = [PDFObject pdfComment:[self stringFromLexeme:_lexeme len:_len]];
+            _state = END_STATE;
+            break;
+        case PDF_XREF_KEYWORD_LEXEME_TYPE:
+            _state = IN_XREF_NEED_FIRST_OBJECT_NUMBER_STATE;
+            break;
+        case PDF_UINT_NUMBER_TYPE:
+            _state = OBJ_OBJECT_NUMBER_STATE;
+            _objectNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            break;
+        default:
+            ErrorState(@"Bad type in BEGIN_STATE");
+            break;
+    }
+}
 
-        const char* lexeme = [_lexicalAnalyzer nextLexemeByState:&_pdf_state];
-        enum PDFLexemeTypes type = _pdf_state.current_type;
-        NSUInteger len = _pdf_state.len;
-        
-        switch (state) {
-            case BEGIN_STATE:
-                switch (type) {
-                    case PDF_COMMENT_LEXEME_TYPE:
-                        pdfObj = [PDFObject pdfComment:[self stringFromLexeme:lexeme len:len]];
-                        state = END_STATE;
+- (void)inXRefNeedFirstObjectNumberState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+            _state = IN_XREF_AFTER_FIRST_OBJECT_NUMBER_STATE;
+            _xrefFirstObjectNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            break;
+        case PDF_TRAILER_KEYWORD_LEXEME_TYPE:
+            _state = IN_TRAILER_STATE;
+            _xrefTable = [PDFXRefTable pdfXRefTableWithSubSections:_subTables];
+            break;
+        default:
+            ErrorState(@"Failed to parse xref subsection");
+            break;
+    }
+}
+
+- (void)objObjectNumberState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+            _state = OBJ_GENERATED_NUMBER_STATE;
+            _generatedNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            break;
+        default:
+            ErrorState(@"Bad state in FIRST_OBJECT_NUMBER_STATE");
+            break;
+    }
+}
+
+- (void)objGeneratedNumberState
+{
+    switch (_type) {
+        case PDF_OBJ_KEYWORD_LEXEME_TYPE:
+            _state = OBJ_KEYWORD_STATE;
+            break;
+        default:
+            ErrorState(@"Bad type after generated number");
+            break;
+    }
+}
+
+- (void)objKeywordState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+            _state = IN_OBJECT_AFTER_NUMBER_STATE;
+            _refObjectNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            break;
+        case PDF_NUMBER_LEXEME_TYPE:
+            _state = IN_OBJECT_AFTER_VALUE_STATE;
+            _pdfValue = [self numberValueFromLexeme:_lexeme len:_len];
+            break;
+        case PDF_STRING_LEXEME_TYPE:
+            _state = IN_OBJECT_AFTER_VALUE_STATE;
+            _pdfValue = [self stringValueFromLexeme:_lexeme len:_len];
+            break;
+        case PDF_HEX_STRING_LEXEME_TYPE:
+            _state = IN_OBJECT_AFTER_VALUE_STATE;
+            _pdfValue = [self hexStringValueFromLexeme:_lexeme len:_len];
+            break;
+        case PDF_NAME_LEXEME_TYPE:
+            _state = IN_OBJECT_AFTER_VALUE_STATE;
+            _pdfValue = [self nameValueFromLexeme:_lexeme len:_len];
+            break;
+        case PDF_TRUE_KEYWORD_LEXEME_TYPE:
+            _state = IN_OBJECT_AFTER_VALUE_STATE;
+            _pdfValue = [PDFValue trueValue];
+            break;
+        case PDF_FALSE_KEYWORD_LEXEME_TYPE:
+            _state = IN_OBJECT_AFTER_VALUE_STATE;
+            _pdfValue = [PDFValue falseValue];
+            break;
+        case PDF_ENDOBJ_KEYWORD_LEXEME_TYPE:
+            _state = END_STATE;
+            _pdfObj = [PDFObject pdfObjectWithValue:nil objectNumber:_objectNumber generatedNumber:_generatedNumber];
+            break;
+        case PDF_OPEN_ARRAY_LEXEME_TYPE:
+            _array = [NSMutableArray array];
+            _pdfValue = [PDFValue arrayValue:_array];
+            _state = IN_OBJECT_IN_ARRAY_STATE;
+            break;
+        case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
+            _dictionary = [NSMutableDictionary dictionary];
+            _pdfValue = [PDFValue dictionaryValue:_dictionary];
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_NULL_KEYWORD_LEXEME:
+            _pdfValue = [PDFValue nullValue];
+            _state = IN_OBJECT_AFTER_VALUE_STATE;
+            break;
+        default:
+            ErrorState(@"Bad state in OBJ_KEYWORD_STATE");
+            break;
+    }
+}
+
+- (void)inObjectAfterNumberState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+            _refGeneratedNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            _state = IN_OBJECT_AFTER_NUMBER_NEED_R_STATE;
+            break;
+        case PDF_ENDOBJ_KEYWORD_LEXEME_TYPE:
+            _state = END_STATE;
+            _pdfValue = [PDFValue numberValue:@(_refObjectNumber)];
+            _pdfObj = [PDFObject pdfObjectWithValue:_pdfValue objectNumber:_objectNumber generatedNumber:_generatedNumber];
+            break;
+        default:
+            ErrorState(@"Bad state in IN_OBJECT_AFTER_NUMBER_STATE");
+            break;
+    }
+}
+
+- (void)inObjectAfterNumberNeedRState
+{
+    switch (_type) {
+        case PDF_R_KEYWORD_LEXEME:
+            _pdfValue = [PDFValue pdfRefValueWithObjectNumber:_refObjectNumber generatedNumber:_refGeneratedNumber];
+            _state = IN_OBJECT_AFTER_VALUE_STATE;
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)inObjectAfterValueState
+{
+    switch (_type) {
+        case PDF_STREAM_KEYWORD_LEXEME_TYPE:
+            if (_pdfValue.type != PDF_DICTIONARY_VALUE_TYPE) {
+                ErrorState(@"For stream need dictionary");
+            } else {
+                NSDictionary *dict = (NSDictionary*)_pdfValue.value;
+                PDFValue *pdfLength = dict[@"/Length"];
+                if (pdfLength == nil) {
+                    ErrorState(@"For stream need length");
+                } else if (pdfLength.type != PDF_NUMBER_VALUE_TYPE) {
+                    ErrorState(@"For stream length must me unsigned integer number");
+                } else {
+                    NSNumber *numberLength = (NSNumber*)pdfLength.value;
+                    if ([numberLength isLessThan:@0]) {
+                        ErrorState(@"For stream length must me unsigned integer number");
+                    } else {
+                        [_lexicalAnalyzer skipBytesByCount:1 state:&_pdf_state];
+                        _stream = [_lexicalAnalyzer getAndSkipBytesByCount:numberLength.unsignedIntegerValue state:&_pdf_state];
+                        _state = IN_OBJECT_AFTER_STREAM_STATE;
+                    }
+                }
+            }
+            break;
+        case PDF_ENDOBJ_KEYWORD_LEXEME_TYPE:
+            _state = END_STATE;
+            _pdfObj = [PDFObject pdfObjectWithValue:_pdfValue objectNumber:_objectNumber generatedNumber:_generatedNumber];
+            break;
+        default:
+            ErrorState(@"Bad type in IN_OBJECT_AFTER_VALUE_STATE");
+            break;
+    }
+}
+
+- (void)inObjectInArrayState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+        case PDF_INT_NUMBER_TYPE:
+        case PDF_NUMBER_LEXEME_TYPE:
+            [_array addObject:[self numberValueFromLexeme:_lexeme len:_len]];
+            break;
+        case PDF_STRING_LEXEME_TYPE:
+            [_array addObject:[self stringValueFromLexeme:_lexeme len:_len]];
+            break;
+        case PDF_HEX_STRING_LEXEME_TYPE:
+            [_array addObject:[self hexStringValueFromLexeme:_lexeme len:_len]];
+            break;
+        case PDF_NAME_LEXEME_TYPE:
+            [_array addObject:[self nameValueFromLexeme:_lexeme len:_len]];
+            break;
+        case PDF_TRUE_KEYWORD_LEXEME_TYPE:
+            [_array addObject:[PDFValue trueValue]];
+            break;
+        case PDF_FALSE_KEYWORD_LEXEME_TYPE:
+            [_array addObject:[PDFValue falseValue]];
+            break;
+        case PDF_OPEN_ARRAY_LEXEME_TYPE:
+            _state = IN_OBJECT_IN_ARRAY_STATE;
+            [_stack pushObject:@{@"value" : _pdfValue, @"type" : @0}];
+            _array = [NSMutableArray array];
+            _pdfValue = [PDFValue arrayValue:_array];
+            break;
+        case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            [_stack pushObject:@{@"value": _pdfValue, @"type" : @0}];
+            _dictionary = [NSMutableDictionary dictionary];
+            _pdfValue = [PDFValue dictionaryValue:_dictionary];
+            break;
+        case PDF_NULL_KEYWORD_LEXEME:
+            [_array addObject:[PDFValue nullValue]];
+            break;
+        case PDF_CLOSE_ARRAY_LEXEME_TYPE:
+            if (_stack.count == 0) {
+                _state = IN_OBJECT_AFTER_VALUE_STATE;
+            } else {
+                PDFValue *tmp = _pdfValue;
+                _pdfValue = [_stack top][@"value"];
+                switch ([[_stack top][@"type"] intValue]) {
+                    case 0:
+                        _array = (NSMutableArray*)_pdfValue.value;
+                        [_array addObject:tmp];
+                        _state = IN_OBJECT_IN_ARRAY_STATE;
                         break;
-                    case PDF_XREF_KEYWORD_LEXEME_TYPE:
-                        state = IN_XREF_NEED_FIRST_OBJECT_NUMBER_STATE;
-                        break;
-                    case PDF_UINT_NUMBER_TYPE:
-                        state = OBJ_OBJECT_NUMBER_STATE;
-                        objectNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
-                        break;
+                    case 1:
                     default:
-                        ErrorState(@"Bad type in BEGIN_STATE");
+                        _dictionary = (NSMutableDictionary*)_pdfValue.value;
+                        _dictionary[[_stack top][@"key"]] = tmp;
+                        _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
                         break;
                 }
+                [_stack pop];
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)inObjectInDictionaryWaitKeyState
+{
+    switch (_type) {
+        case PDF_NAME_LEXEME_TYPE:
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_VALUE_STATE;
+            _key = [self stringFromLexeme:_lexeme len:_len];
+            break;
+        case PDF_CLOSE_DICTIONARY_LEXEME_TYPE:
+            if (_stack.count == 0) {
+                _state = IN_OBJECT_AFTER_VALUE_STATE;
+            } else {
+                PDFValue *tmp = _pdfValue;
+                _pdfValue = [_stack top][@"value"];
+                switch ([[_stack top][@"type"] intValue]) {
+                    case 0:
+                        _array = (NSMutableArray*)_pdfValue.value;
+                        [_array addObject:tmp];
+                        _state = IN_OBJECT_IN_ARRAY_STATE;
+                        break;
+                    case 1:
+                    default:
+                        _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+                        _dictionary = (NSMutableDictionary*)_pdfValue.value;
+                        _dictionary[[_stack top][@"key"]] = tmp;
+                        break;
+                }
+                [_stack pop];
+            }
+            break;
+        default:
+            ErrorState(@"Only name type can be dictionary keys");
+            break;
+    }
+}
+
+- (void)inObjectInDictionaryWaitValueState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+            _state = IN_OBJECT_IN_DICTIONARY_AFTER_UINT_STATE;
+            _refObjectNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            break;
+        case PDF_INT_NUMBER_TYPE:
+        case PDF_NUMBER_LEXEME_TYPE:
+            _dictionary[_key] = [self numberValueFromLexeme:_lexeme len:_len];
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_NAME_LEXEME_TYPE:
+            _dictionary[_key] = [self nameValueFromLexeme:_lexeme len:_len];
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_STRING_LEXEME_TYPE:
+            _dictionary[_key] = [self stringValueFromLexeme:_lexeme len:_len];
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_HEX_STRING_LEXEME_TYPE:
+            _dictionary[_key] = [self hexStringValueFromLexeme:_lexeme len:_len];
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_TRUE_KEYWORD_LEXEME_TYPE:
+            _dictionary[_key] = [PDFValue trueValue];
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_FALSE_KEYWORD_LEXEME_TYPE:
+            _dictionary[_key] = [PDFValue falseValue];
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_NULL_KEYWORD_LEXEME:
+            _dictionary[_key] = [PDFValue nullValue];
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_OPEN_ARRAY_LEXEME_TYPE:
+            [_stack pushObject:@{@"key": _key, @"value" : _pdfValue, @"type" : @1}];
+            _state = IN_OBJECT_IN_ARRAY_STATE;
+            _array = [NSMutableArray array];
+            _pdfValue = [PDFValue arrayValue:_array];
+            break;
+        case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
+            [_stack pushObject:@{@"key" : _key, @"value" : _pdfValue, @"type" : @1}];
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            _dictionary = [NSMutableDictionary dictionary];
+            _pdfValue = [PDFValue dictionaryValue:_dictionary];
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)inObjectInDictionaryAfterUINTState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+            _state = IN_OBJECT_IN_DICTIONARY_NEED_R_STATE;
+            _refGeneratedNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            break;
+        case PDF_NAME_LEXEME_TYPE:
+            _dictionary[_key] = [PDFValue numberValue:@(_refObjectNumber)];
+            _key = [self stringFromLexeme:_lexeme len:_len];
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_VALUE_STATE;
+            break;
+        case PDF_CLOSE_DICTIONARY_LEXEME_TYPE:
+            _dictionary[_key] = [PDFValue numberValue:@(_refObjectNumber)];
+            if (_stack.count == 0) {
+                _state = IN_OBJECT_AFTER_VALUE_STATE;
+            } else {
+                PDFValue *tmp = _pdfValue;
+                _pdfValue = [_stack top][@"value"];
+                switch ([[_stack top][@"type"] intValue]) {
+                    case 0:
+                        _array = (NSMutableArray*)_pdfValue.value;
+                        [_array addObject:tmp];
+                        _state = IN_OBJECT_IN_ARRAY_STATE;
+                        break;
+                    case 1:
+                    default:
+                        _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+                        _dictionary = (NSMutableDictionary*)_pdfValue.value;
+                        _dictionary[[_stack top][@"key"]] = tmp;
+                        break;
+                }
+                [_stack pop];
+            }
+            break;
+        default:
+            ErrorState(@"Syntaxis error in dictoinary value");
+            break;
+    }
+}
+
+- (void)inObjectInDictionaryNeedRState
+{
+    switch (_type) {
+        case PDF_R_KEYWORD_LEXEME:
+            _dictionary[_key] = [PDFValue pdfRefValueWithObjectNumber:_refObjectNumber generatedNumber:_refGeneratedNumber];
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        default:
+            ErrorState(@"Syntaxis error in dictionary value");
+            break;
+    }
+}
+
+- (void)inObjectAfterStreamState
+{
+    switch (_type) {
+        case PDF_ENDSTREAM_KEYWORD_LEXEME_TYPE:
+            _state = IN_OBJECT_AFTER_ENDSTREAM_STATE;
+            break;
+        default:
+            ErrorState(@"After stream must be endstream");
+            break;
+    }
+}
+
+- (void)inObjectAfterEndstreamState
+{
+    switch (_type) {
+        case PDF_ENDOBJ_KEYWORD_LEXEME_TYPE:
+            _pdfObj = [PDFObject pdfObjectWithValue:_pdfValue stream:_stream objectNumber:_objectNumber generatedNumber:_generatedNumber];
+            _state = END_STATE;
+            break;
+        default:
+            ErrorState(@"After endstream must be endobj");
+            break;
+    }
+}
+
+- (void)inXRefAfterFirstObjectNumberState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+            _xrefLastObjectNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            _state = IN_XREF_NEED_FIRST_OBJECT_NUMBER_STATE;
+            [_lexicalAnalyzer skipBytesByCount:2 state:&_pdf_state];
+            _xrefSection = [PDFXRefSubSection pdfXRefSectionWithFirstObjectNumber:_xrefFirstObjectNumber
+                                                                 lastObjectNumber:_xrefLastObjectNumber
+                                                                             data:[_lexicalAnalyzer getAndSkipBytesByCount:19 * _xrefLastObjectNumber
+                                                                                                                     state:&_pdf_state]];
+            [_subTables addObject:_xrefSection];
+            break;
+        default:
+            ErrorState(@"After xref must be unsigned integer value");
+            break;
+    }
+}
+
+- (void)inTrailerState
+{
+    switch (_type) {
+        case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+            _dictionary = [NSMutableDictionary dictionary];
+            _pdfValue = [PDFValue dictionaryValue:_dictionary];
+            break;
+        default:
+            ErrorState(@"In trailer always must be non empty dictionary");
+            break;
+    }
+}
+
+- (void)inTrailerInDictionaryWaitKeyState
+{
+    switch (_type) {
+        case PDF_NAME_LEXEME_TYPE:
+            _key = [self stringFromLexeme:_lexeme len:_len];
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_VALUE_STATE;
+            break;
+        case PDF_CLOSE_DICTIONARY_LEXEME_TYPE:
+            if (_stack.count == 0) {
+                _state = IN_TRAILER_AFTER_DICTIONARY_STATE;
+            } else {
+                PDFValue *tmp = _pdfValue;
+                _pdfValue = [_stack top][@"value"];
+                switch ([[_stack top][@"type"] intValue]) {
+                    case 0:
+                        _array = (NSMutableArray*)_pdfValue.value;
+                        [_array addObject:tmp];
+                        _state = IN_TRAILER_IN_ARRAY_STATE;
+                        break;
+                    case 1:
+                    default:
+                        _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+                        _dictionary = (NSMutableDictionary*)_pdfValue.value;
+                        _dictionary[[_stack top][@"key"]] = tmp;
+                        break;
+                }
+                [_stack pop];
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)inTrailerInDictionaryWaitValueState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+            _refObjectNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            _state = IN_TRAILER_IN_DICTIONARY_AFTER_UINT_STATE;
+            break;
+        case PDF_INT_NUMBER_TYPE:
+        case PDF_NUMBER_LEXEME_TYPE:
+            _dictionary[_key] = [self numberValueFromLexeme:_lexeme len:_len];
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_NAME_LEXEME_TYPE:
+            _dictionary[_key] = [self nameValueFromLexeme:_lexeme len:_len];
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_STRING_LEXEME_TYPE:
+            _dictionary[_key] = [self stringValueFromLexeme:_lexeme len:_len];
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_HEX_STRING_LEXEME_TYPE:
+            _dictionary[_key] = [self hexStringValueFromLexeme:_lexeme len:_len];
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_TRUE_KEYWORD_LEXEME_TYPE:
+            _dictionary[_key] = [PDFValue trueValue];
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_FALSE_KEYWORD_LEXEME_TYPE:
+            _dictionary[_key] = [PDFValue falseValue];
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_NULL_KEYWORD_LEXEME:
+            _dictionary[_key] = [PDFValue nullValue];
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        case PDF_OPEN_ARRAY_LEXEME_TYPE:
+            [_stack pushObject:@{@"key": _key, @"value" : _pdfValue, @"type" : @1}];
+            _state = IN_TRAILER_IN_ARRAY_STATE;
+            _array = [NSMutableArray array];
+            _pdfValue = [PDFValue arrayValue:_array];
+            break;
+        case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
+            [_stack pushObject:@{@"key" : _key, @"value" : _pdfValue, @"type" : @1}];
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+            _dictionary = [NSMutableDictionary dictionary];
+            _pdfValue = [PDFValue dictionaryValue:_dictionary];
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)inTrailerInArrayState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+        case PDF_INT_NUMBER_TYPE:
+        case PDF_NUMBER_LEXEME_TYPE:
+            [_array addObject:[self numberValueFromLexeme:_lexeme len:_len]];
+            break;
+        case PDF_STRING_LEXEME_TYPE:
+            [_array addObject:[self stringValueFromLexeme:_lexeme len:_len]];
+            break;
+        case PDF_HEX_STRING_LEXEME_TYPE:
+            [_array addObject:[self hexStringValueFromLexeme:_lexeme len:_len]];
+            break;
+        case PDF_NAME_LEXEME_TYPE:
+            [_array addObject:[self nameValueFromLexeme:_lexeme len:_len]];
+            break;
+        case PDF_TRUE_KEYWORD_LEXEME_TYPE:
+            [_array addObject:[PDFValue trueValue]];
+            break;
+        case PDF_FALSE_KEYWORD_LEXEME_TYPE:
+            [_array addObject:[PDFValue falseValue]];
+            break;
+        case PDF_OPEN_ARRAY_LEXEME_TYPE:
+            _state = IN_OBJECT_IN_ARRAY_STATE;
+            [_stack pushObject:@{@"value" : _pdfValue, @"type" : @0}];
+            _array = [NSMutableArray array];
+            _pdfValue = [PDFValue arrayValue:_array];
+            break;
+        case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
+            _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
+            [_stack pushObject:@{@"value": _pdfValue, @"type" : @0}];
+            _dictionary = [NSMutableDictionary dictionary];
+            _pdfValue = [PDFValue dictionaryValue:_dictionary];
+            break;
+        case PDF_NULL_KEYWORD_LEXEME:
+            [_array addObject:[PDFValue nullValue]];
+            break;
+        case PDF_CLOSE_ARRAY_LEXEME_TYPE:
+            if (_stack.count == 0) {
+                _state = IN_TRAILER_AFTER_DICTIONARY_STATE;
+            } else {
+                PDFValue *tmp = _pdfValue;
+                _pdfValue = [_stack top][@"value"];
+                switch ([[_stack top][@"type"] intValue]) {
+                    case 0:
+                        _array = (NSMutableArray*)_pdfValue.value;
+                        [_array addObject:tmp];
+                        _state = IN_TRAILER_IN_ARRAY_STATE;
+                        break;
+                    case 1:
+                    default:
+                        _dictionary = (NSMutableDictionary*)_pdfValue.value;
+                        _dictionary[[_stack top][@"key"]] = tmp;
+                        _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+                        break;
+                }
+                [_stack pop];
+            }
+            break;
+        default:
+            ErrorState(@"Failed to parse array in trailer");
+            break;
+    }
+}
+
+- (void)inTrailerInDictionaryAfterUINTState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+            _state = IN_TRAILER_IN_DICTIONARY_NEED_R_STATE;
+            _refGeneratedNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            break;
+        case PDF_NAME_LEXEME_TYPE:
+            _dictionary[_key] = [PDFValue numberValue:@(_refObjectNumber)];
+            _key = [self stringFromLexeme:_lexeme len:_len];
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_VALUE_STATE;
+            break;
+        case PDF_CLOSE_DICTIONARY_LEXEME_TYPE:
+            _dictionary[_key] = [PDFValue numberValue:@(_refObjectNumber)];
+            if (_stack.count == 0) {
+                _state = IN_TRAILER_AFTER_DICTIONARY_STATE;
+            } else {
+                PDFValue *tmp = _pdfValue;
+                _pdfValue = [_stack top][@"value"];
+                switch ([[_stack top][@"type"] intValue]) {
+                    case 0:
+                        _array = (NSMutableArray*)_pdfValue.value;
+                        [_array addObject:tmp];
+                        _state = IN_TRAILER_IN_ARRAY_STATE;
+                        break;
+                    case 1:
+                    default:
+                        _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+                        _dictionary = (NSMutableDictionary*)_pdfValue.value;
+                        _dictionary[[_stack top][@"key"]] = tmp;
+                        break;
+                }
+                [_stack pop];
+            }
+            break;
+        default:
+            ErrorState(@"Syntaxis error in dictoinary value");
+            break;
+    }
+}
+
+- (void)inTrailerInDictionaryNeedRState
+{
+    switch (_type) {
+        case PDF_R_KEYWORD_LEXEME:
+            _dictionary[_key] = [PDFValue pdfRefValueWithObjectNumber:_refObjectNumber generatedNumber:_refGeneratedNumber];
+            _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
+            break;
+        default:
+            ErrorState(@"Failed to parse reference in dictionary in trailer");
+            break;
+    }
+}
+
+- (void)inTrailerAfterDictionaryState
+{
+    switch (_type) {
+        case PDF_STARTXREF_KEYWORD_LEXEME_TYPE:
+            _state = AFTER_STARTXREF_STATE;
+            break;
+        default:
+            ErrorState(@"After trailer dictionary must be startxref keyword");
+            break;
+    }
+}
+
+- (void)afterStartXRefState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+            _trailerOffset = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            _state = AFTER_TRAILER_OFFSET_STATE;
+            break;
+        default:
+            ErrorState(@"After startxref keyword must be unsigned integer number");
+            break;
+    }
+}
+
+- (void)afterTrailerOffsetState
+{
+    switch (_type) {
+        case PDF_COMMENT_LEXEME_TYPE:
+        {
+            if (_len == 5 && strncmp(_lexeme, "%%EOF", _len) == 0) {
+                _state = END_STATE;
+                _pdfObj = [PDFObject pdfObjectWithXRefTable:_xrefTable trailer:_dictionary offset:_trailerOffset];
+            } else {
+                ErrorState(@"After trailer offset must be comment '%%EOF'");
+            }
+            break;
+        }
+        default:
+            ErrorState(@"After trailer offset must be comment '%%EOF'");
+            break;
+    }
+}
+
+- (NSObject*)nextSyntaxObject
+{
+    _state                  = BEGIN_STATE;
+    _pdfObj                 = nil;
+    _pdfValue               = nil;
+    _objectNumber           = 0;
+    _generatedNumber        = 0;
+    _refObjectNumber        = 0;
+    _refGeneratedNumber     = 0;
+    _array                  = nil;
+    _dictionary             = nil;
+    _stack                  = [PDFStack pdfStack];
+    _key                    = nil;
+    _stream                 = nil;
+    _xrefFirstObjectNumber  = 0;
+    _xrefLastObjectNumber   = 0;
+    _subTables              = [NSMutableArray array];
+    _xrefSection            = nil;
+    _xrefTable              = nil;
+    _trailerOffset          = 0;
+    
+    while (_state != END_STATE && _state != ERROR_STATE) {
+        
+        _lexeme = [_lexicalAnalyzer nextLexemeByState:&_pdf_state];
+        _type   = _pdf_state.current_type;
+        _len    = _pdf_state.len;
+        
+        switch (_state) {
+            case BEGIN_STATE:
+                [self beginState];
                 break;
             case IN_XREF_NEED_FIRST_OBJECT_NUMBER_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                        state = IN_XREF_AFTER_FIRST_OBJECT_NUMBER_STATE;
-                        xrefFirstObjectNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
-                        break;
-                    case PDF_TRAILER_KEYWORD_LEXEME_TYPE:
-                        state = IN_TRAILER_STATE;
-                        xrefTable = [PDFXRefTable pdfXRefTableWithSubSections:subTables];
-                        break;
-                    default:
-                        ErrorState(@"Failed to parse xref subsection");
-                        break;
-                }
+                [self inXRefNeedFirstObjectNumberState];
                 break;
             case OBJ_OBJECT_NUMBER_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                        state = OBJ_GENERATED_NUMBER_STATE;
-                        generatedNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
-                        break;
-                    default:
-                        ErrorState(@"Bad state in FIRST_OBJECT_NUMBER_STATE");
-                        break;
-                }
+                [self objObjectNumberState];
                 break;
             case OBJ_GENERATED_NUMBER_STATE:
-                switch (type) {
-                    case PDF_OBJ_KEYWORD_LEXEME_TYPE:
-                        state = OBJ_KEYWORD_STATE;
-                        break;
-                    default:
-                        ErrorState(@"Bad type after generated number");
-                        break;
-                }
+                [self objGeneratedNumberState];
                 break;
             case OBJ_KEYWORD_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                        state = IN_OBJECT_AFTER_NUMBER_STATE;
-                        refObjectNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
-                        break;
-                    case PDF_NUMBER_LEXEME_TYPE:
-                        state = IN_OBJECT_AFTER_VALUE_STATE;
-                        pdfValue = [self numberValueFromLexeme:lexeme len:len];
-                        break;
-                    case PDF_STRING_LEXEME_TYPE:
-                        state = IN_OBJECT_AFTER_VALUE_STATE;
-                        pdfValue = [self stringValueFromLexeme:lexeme len:len];
-                        break;
-                    case PDF_HEX_STRING_LEXEME_TYPE:
-                        state = IN_OBJECT_AFTER_VALUE_STATE;
-                        pdfValue = [self hexStringValueFromLexeme:lexeme len:len];
-                        break;
-                    case PDF_NAME_LEXEME_TYPE:
-                        state = IN_OBJECT_AFTER_VALUE_STATE;
-                        pdfValue = [self nameValueFromLexeme:lexeme len:len];
-                        break;
-                    case PDF_TRUE_KEYWORD_LEXEME_TYPE:
-                        state = IN_OBJECT_AFTER_VALUE_STATE;
-                        pdfValue = [PDFValue trueValue];
-                        break;
-                    case PDF_FALSE_KEYWORD_LEXEME_TYPE:
-                        state = IN_OBJECT_AFTER_VALUE_STATE;
-                        pdfValue = [PDFValue falseValue];
-                        break;
-                    case PDF_ENDOBJ_KEYWORD_LEXEME_TYPE:
-                        state = END_STATE;
-                        pdfObj = [PDFObject pdfObjectWithValue:nil objectNumber:objectNumber generatedNumber:generatedNumber];
-                        break;
-                    case PDF_OPEN_ARRAY_LEXEME_TYPE:
-                        array = [NSMutableArray array];
-                        pdfValue = [PDFValue arrayValue:array];
-                        state = IN_OBJECT_IN_ARRAY_STATE;
-                        break;
-                    case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
-                        dictionary = [NSMutableDictionary dictionary];
-                        pdfValue = [PDFValue dictionaryValue:dictionary];
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_NULL_KEYWORD_LEXEME:
-                        pdfValue = [PDFValue nullValue];
-                        state = IN_OBJECT_AFTER_VALUE_STATE;
-                        break;
-                    default:
-                        ErrorState(@"Bad state in OBJ_KEYWORD_STATE");
-                        break;
-                }
+                [self objKeywordState];
                 break;
             case IN_OBJECT_AFTER_NUMBER_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                        refGeneratedNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
-                        state = IN_OBJECT_AFTER_NUMBER_NEED_R_STATE;
-                        break;
-                    case PDF_ENDOBJ_KEYWORD_LEXEME_TYPE:
-                        state = END_STATE;
-                        pdfValue = [PDFValue numberValue:@(refObjectNumber)];
-                        pdfObj = [PDFObject pdfObjectWithValue:pdfValue objectNumber:objectNumber generatedNumber:generatedNumber];
-                        break;
-                    default:
-                        ErrorState(@"Bad state in IN_OBJECT_AFTER_NUMBER_STATE");
-                        break;
-                }
+                [self inObjectAfterNumberState];
                 break;
             case IN_OBJECT_AFTER_NUMBER_NEED_R_STATE:
-                switch (type) {
-                    case PDF_R_KEYWORD_LEXEME:
-                        pdfValue = [PDFValue pdfRefValueWithObjectNumber:refObjectNumber generatedNumber:refGeneratedNumber];
-                        state = IN_OBJECT_AFTER_VALUE_STATE;
-                        break;
-                    default:
-                        break;
-                }
+                [self inObjectAfterNumberNeedRState];
                 break;
             case IN_OBJECT_AFTER_VALUE_STATE:
-                switch (type) {
-                    case PDF_STREAM_KEYWORD_LEXEME_TYPE:
-                        if (pdfValue.type != PDF_DICTIONARY_VALUE_TYPE) {
-                            ErrorState(@"For stream need dictionary");
-                        } else {
-                            NSDictionary *dict = (NSDictionary*)pdfValue.value;
-                            PDFValue *pdfLength = dict[@"/Length"];
-                            if (pdfLength == nil) {
-                                ErrorState(@"For stream need length");
-                            } else if (pdfLength.type != PDF_NUMBER_VALUE_TYPE) {
-                                ErrorState(@"For stream length must me unsigned integer number");
-                            } else {
-                                NSNumber *numberLength = (NSNumber*)pdfLength.value;
-                                if ([numberLength isLessThan:@0]) {
-                                    ErrorState(@"For stream length must me unsigned integer number");
-                                } else {
-                                    [_lexicalAnalyzer skipBytesByCount:1 state:&_pdf_state];
-                                    stream = [_lexicalAnalyzer getAndSkipBytesByCount:numberLength.unsignedIntegerValue state:&_pdf_state];
-                                    state = IN_OBJECT_AFTER_STREAM_STATE;
-                                }
-                            }
-                        }
-                        break;
-                    case PDF_ENDOBJ_KEYWORD_LEXEME_TYPE:
-                        state = END_STATE;
-                        pdfObj = [PDFObject pdfObjectWithValue:pdfValue objectNumber:objectNumber generatedNumber:generatedNumber];
-                        break;
-                    default:
-                        ErrorState(@"Bad type in IN_OBJECT_AFTER_VALUE_STATE");
-                        break;
-                }
+                [self inObjectAfterValueState];
                 break;
             case IN_OBJECT_IN_ARRAY_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                    case PDF_INT_NUMBER_TYPE:
-                    case PDF_NUMBER_LEXEME_TYPE:
-                        [array addObject:[self numberValueFromLexeme:lexeme len:len]];
-                        break;
-                    case PDF_STRING_LEXEME_TYPE:
-                        [array addObject:[self stringValueFromLexeme:lexeme len:len]];
-                        break;
-                    case PDF_HEX_STRING_LEXEME_TYPE:
-                        [array addObject:[self hexStringValueFromLexeme:lexeme len:len]];
-                        break;
-                    case PDF_NAME_LEXEME_TYPE:
-                        [array addObject:[self nameValueFromLexeme:lexeme len:len]];
-                        break;
-                    case PDF_TRUE_KEYWORD_LEXEME_TYPE:
-                        [array addObject:[PDFValue trueValue]];
-                        break;
-                    case PDF_FALSE_KEYWORD_LEXEME_TYPE:
-                        [array addObject:[PDFValue falseValue]];
-                        break;
-                    case PDF_OPEN_ARRAY_LEXEME_TYPE:
-                        state = IN_OBJECT_IN_ARRAY_STATE;
-                        [stack pushObject:@{@"value" : pdfValue, @"type" : @0}];
-                        array = [NSMutableArray array];
-                        pdfValue = [PDFValue arrayValue:array];
-                        break;
-                    case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        [stack pushObject:@{@"value": pdfValue, @"type" : @0}];
-                        dictionary = [NSMutableDictionary dictionary];
-                        pdfValue = [PDFValue dictionaryValue:dictionary];
-                        break;
-                    case PDF_NULL_KEYWORD_LEXEME:
-                        [array addObject:[PDFValue nullValue]];
-                        break;
-                    case PDF_CLOSE_ARRAY_LEXEME_TYPE:
-                        if (stack.count == 0) {
-                            state = IN_OBJECT_AFTER_VALUE_STATE;
-                        } else {
-                            PDFValue *tmp = pdfValue;
-                            pdfValue = [stack top][@"value"];
-                            switch ([[stack top][@"type"] intValue]) {
-                                case 0:
-                                    array = (NSMutableArray*)pdfValue.value;
-                                    [array addObject:tmp];
-                                    state = IN_OBJECT_IN_ARRAY_STATE;
-                                    break;
-                                case 1:
-                                default:
-                                    dictionary = (NSMutableDictionary*)pdfValue.value;
-                                    dictionary[[stack top][@"key"]] = tmp;
-                                    state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                                    break;
-                            }
-                            [stack pop];
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                [self inObjectInArrayState];
                 break;
             case IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE:
-                switch (type) {
-                    case PDF_NAME_LEXEME_TYPE:
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_VALUE_STATE;
-                        key = [self stringFromLexeme:lexeme len:len];
-                        break;
-                    case PDF_CLOSE_DICTIONARY_LEXEME_TYPE:
-                        if (stack.count == 0) {
-                            state = IN_OBJECT_AFTER_VALUE_STATE;
-                        } else {
-                            PDFValue *tmp = pdfValue;
-                            pdfValue = [stack top][@"value"];
-                            switch ([[stack top][@"type"] intValue]) {
-                                case 0:
-                                    array = (NSMutableArray*)pdfValue.value;
-                                    [array addObject:tmp];
-                                    state = IN_OBJECT_IN_ARRAY_STATE;
-                                    break;
-                                case 1:
-                                default:
-                                    state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                                    dictionary = (NSMutableDictionary*)pdfValue.value;
-                                    dictionary[[stack top][@"key"]] = tmp;
-                                    break;
-                            }
-                            [stack pop];
-                        }
-                        break;
-                    default:
-                        ErrorState(@"Only name type can be dictionary keys");
-                        break;
-                }
+                [self inObjectInDictionaryWaitKeyState];
                 break;
             case IN_OBJECT_IN_DICTIONARY_WAIT_VALUE_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                        state = IN_OBJECT_IN_DICTIONARY_AFTER_UINT_STATE;
-                        refObjectNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
-                        break;
-                    case PDF_INT_NUMBER_TYPE:
-                    case PDF_NUMBER_LEXEME_TYPE:
-                        dictionary[key] = [self numberValueFromLexeme:lexeme len:len];
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_NAME_LEXEME_TYPE:
-                        dictionary[key] = [self nameValueFromLexeme:lexeme len:len];
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_STRING_LEXEME_TYPE:
-                        dictionary[key] = [self stringValueFromLexeme:lexeme len:len];
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_HEX_STRING_LEXEME_TYPE:
-                        dictionary[key] = [self hexStringValueFromLexeme:lexeme len:len];
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_TRUE_KEYWORD_LEXEME_TYPE:
-                        dictionary[key] = [PDFValue trueValue];
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_FALSE_KEYWORD_LEXEME_TYPE:
-                        dictionary[key] = [PDFValue falseValue];
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_NULL_KEYWORD_LEXEME:
-                        dictionary[key] = [PDFValue nullValue];
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_OPEN_ARRAY_LEXEME_TYPE:
-                        [stack pushObject:@{@"key": key, @"value" : pdfValue, @"type" : @1}];
-                        state = IN_OBJECT_IN_ARRAY_STATE;
-                        array = [NSMutableArray array];
-                        pdfValue = [PDFValue arrayValue:array];
-                        break;
-                    case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
-                        [stack pushObject:@{@"key" : key, @"value" : pdfValue, @"type" : @1}];
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        dictionary = [NSMutableDictionary dictionary];
-                        pdfValue = [PDFValue dictionaryValue:dictionary];
-                        break;
-                    default:
-                        break;
-                }
+                [self inObjectInDictionaryWaitValueState];
                 break;
             case IN_OBJECT_IN_DICTIONARY_AFTER_UINT_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                        state = IN_OBJECT_IN_DICTIONARY_NEED_R_STATE;
-                        refGeneratedNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
-                        break;
-                    case PDF_NAME_LEXEME_TYPE:
-                        dictionary[key] = [PDFValue numberValue:@(refObjectNumber)];
-                        key = [self stringFromLexeme:lexeme len:len];
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_VALUE_STATE;
-                        break;
-                    case PDF_CLOSE_DICTIONARY_LEXEME_TYPE:
-                        dictionary[key] = [PDFValue numberValue:@(refObjectNumber)];
-                        if (stack.count == 0) {
-                            state = IN_OBJECT_AFTER_VALUE_STATE;
-                        } else {
-                            PDFValue *tmp = pdfValue;
-                            pdfValue = [stack top][@"value"];
-                            switch ([[stack top][@"type"] intValue]) {
-                                case 0:
-                                    array = (NSMutableArray*)pdfValue.value;
-                                    [array addObject:tmp];
-                                    state = IN_OBJECT_IN_ARRAY_STATE;
-                                    break;
-                                case 1:
-                                default:
-                                    state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                                    dictionary = (NSMutableDictionary*)pdfValue.value;
-                                    dictionary[[stack top][@"key"]] = tmp;
-                                    break;
-                            }
-                            [stack pop];
-                        }
-                        break;
-                    default:
-                        ErrorState(@"Syntaxis error in dictoinary value");
-                        break;
-                }
+                [self inObjectInDictionaryAfterUINTState];
                 break;
             case IN_OBJECT_IN_DICTIONARY_NEED_R_STATE:
-                switch (type) {
-                    case PDF_R_KEYWORD_LEXEME:
-                        dictionary[key] = [PDFValue pdfRefValueWithObjectNumber:refObjectNumber generatedNumber:refGeneratedNumber];
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    default:
-                        ErrorState(@"Syntaxis error in dictionary value");
-                        break;
-                }
+                [self inObjectInDictionaryNeedRState];
                 break;
             case IN_OBJECT_AFTER_STREAM_STATE:
-                switch (type) {
-                    case PDF_ENDSTREAM_KEYWORD_LEXEME_TYPE:
-                        state = IN_OBJECT_AFTER_ENDSTREAM_STATE;
-                        break;
-                    default:
-                        ErrorState(@"After stream must be endstream");
-                        break;
-                }
+                [self inObjectAfterStreamState];
                 break;
             case IN_OBJECT_AFTER_ENDSTREAM_STATE:
-                switch (type) {
-                    case PDF_ENDOBJ_KEYWORD_LEXEME_TYPE:
-                        pdfObj = [PDFObject pdfObjectWithValue:pdfValue stream:stream objectNumber:objectNumber generatedNumber:generatedNumber];
-                        state = END_STATE;
-                        break;
-                    default:
-                        ErrorState(@"After endstream must be endobj");
-                        break;
-                }
+                [self inObjectAfterEndstreamState];
+                break;
             case IN_XREF_AFTER_FIRST_OBJECT_NUMBER_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                        xrefLastObjectNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
-                        state = IN_XREF_NEED_FIRST_OBJECT_NUMBER_STATE;
-                        [_lexicalAnalyzer skipBytesByCount:2 state:&_pdf_state];
-                        xrefSection = [PDFXRefSubSection pdfXRefSectionWithFirstObjectNumber:xrefFirstObjectNumber
-                                                                         lastObjectNumber:xrefLastObjectNumber
-                                                                                     data:[_lexicalAnalyzer getAndSkipBytesByCount:19 * xrefLastObjectNumber
-                                                                                                                             state:&_pdf_state]];
-                        [subTables addObject:xrefSection];
-                        break;
-                    default:
-                        ErrorState(@"After xref must be unsigned integer value");
-                        break;
-                }
+                [self inXRefAfterFirstObjectNumberState];
                 break;
             case IN_TRAILER_STATE:
-                switch (type) {
-                    case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                        dictionary = [NSMutableDictionary dictionary];
-                        pdfValue = [PDFValue dictionaryValue:dictionary];
-                        break;
-                    default:
-                        ErrorState(@"In trailer always must be non empty dictionary");
-                        break;
-                }
+                [self inTrailerState];
                 break;
             case IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE:
-                switch (type) {
-                    case PDF_NAME_LEXEME_TYPE:
-                        key = [self stringFromLexeme:lexeme len:len];
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_VALUE_STATE;
-                        break;
-                    case PDF_CLOSE_DICTIONARY_LEXEME_TYPE:
-                        if (stack.count == 0) {
-                            state = IN_TRAILER_AFTER_DICTIONARY_STATE;
-                        } else {
-                            PDFValue *tmp = pdfValue;
-                            pdfValue = [stack top][@"value"];
-                            switch ([[stack top][@"type"] intValue]) {
-                                case 0:
-                                    array = (NSMutableArray*)pdfValue.value;
-                                    [array addObject:tmp];
-                                    state = IN_TRAILER_IN_ARRAY_STATE;
-                                    break;
-                                case 1:
-                                default:
-                                    state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                                    dictionary = (NSMutableDictionary*)pdfValue.value;
-                                    dictionary[[stack top][@"key"]] = tmp;
-                                    break;
-                            }
-                            [stack pop];
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                [self inTrailerInDictionaryWaitKeyState];
                 break;
             case IN_TRAILER_IN_DICTIONARY_WAIT_VALUE_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                        refObjectNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
-                        state = IN_TRAILER_IN_DICTIONARY_AFTER_UINT_STATE;
-                        break;
-                    case PDF_INT_NUMBER_TYPE:
-                    case PDF_NUMBER_LEXEME_TYPE:
-                        dictionary[key] = [self numberValueFromLexeme:lexeme len:len];
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_NAME_LEXEME_TYPE:
-                        dictionary[key] = [self nameValueFromLexeme:lexeme len:len];
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_STRING_LEXEME_TYPE:
-                        dictionary[key] = [self stringValueFromLexeme:lexeme len:len];
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_HEX_STRING_LEXEME_TYPE:
-                        dictionary[key] = [self hexStringValueFromLexeme:lexeme len:len];
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_TRUE_KEYWORD_LEXEME_TYPE:
-                        dictionary[key] = [PDFValue trueValue];
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_FALSE_KEYWORD_LEXEME_TYPE:
-                        dictionary[key] = [PDFValue falseValue];
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_NULL_KEYWORD_LEXEME:
-                        dictionary[key] = [PDFValue nullValue];
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    case PDF_OPEN_ARRAY_LEXEME_TYPE:
-                        [stack pushObject:@{@"key": key, @"value" : pdfValue, @"type" : @1}];
-                        state = IN_TRAILER_IN_ARRAY_STATE;
-                        array = [NSMutableArray array];
-                        pdfValue = [PDFValue arrayValue:array];
-                        break;
-                    case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
-                        [stack pushObject:@{@"key" : key, @"value" : pdfValue, @"type" : @1}];
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                        dictionary = [NSMutableDictionary dictionary];
-                        pdfValue = [PDFValue dictionaryValue:dictionary];
-                        break;
-                    default:
-                        break;
-                }
+                [self inTrailerInDictionaryWaitValueState];
                 break;
             case IN_TRAILER_IN_ARRAY_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                    case PDF_INT_NUMBER_TYPE:
-                    case PDF_NUMBER_LEXEME_TYPE:
-                        [array addObject:[self numberValueFromLexeme:lexeme len:len]];
-                        break;
-                    case PDF_STRING_LEXEME_TYPE:
-                        [array addObject:[self stringValueFromLexeme:lexeme len:len]];
-                        break;
-                    case PDF_HEX_STRING_LEXEME_TYPE:
-                        [array addObject:[self hexStringValueFromLexeme:lexeme len:len]];
-                        break;
-                    case PDF_NAME_LEXEME_TYPE:
-                        [array addObject:[self nameValueFromLexeme:lexeme len:len]];
-                        break;
-                    case PDF_TRUE_KEYWORD_LEXEME_TYPE:
-                        [array addObject:[PDFValue trueValue]];
-                        break;
-                    case PDF_FALSE_KEYWORD_LEXEME_TYPE:
-                        [array addObject:[PDFValue falseValue]];
-                        break;
-                    case PDF_OPEN_ARRAY_LEXEME_TYPE:
-                        state = IN_OBJECT_IN_ARRAY_STATE;
-                        [stack pushObject:@{@"value" : pdfValue, @"type" : @0}];
-                        array = [NSMutableArray array];
-                        pdfValue = [PDFValue arrayValue:array];
-                        break;
-                    case PDF_OPEN_DICTIONARY_LEXEME_TYPE:
-                        state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
-                        [stack pushObject:@{@"value": pdfValue, @"type" : @0}];
-                        dictionary = [NSMutableDictionary dictionary];
-                        pdfValue = [PDFValue dictionaryValue:dictionary];
-                        break;
-                    case PDF_NULL_KEYWORD_LEXEME:
-                        [array addObject:[PDFValue nullValue]];
-                        break;
-                    case PDF_CLOSE_ARRAY_LEXEME_TYPE:
-                        if (stack.count == 0) {
-                            state = IN_TRAILER_AFTER_DICTIONARY_STATE;
-                        } else {
-                            PDFValue *tmp = pdfValue;
-                            pdfValue = [stack top][@"value"];
-                            switch ([[stack top][@"type"] intValue]) {
-                                case 0:
-                                    array = (NSMutableArray*)pdfValue.value;
-                                    [array addObject:tmp];
-                                    state = IN_TRAILER_IN_ARRAY_STATE;
-                                    break;
-                                case 1:
-                                default:
-                                    dictionary = (NSMutableDictionary*)pdfValue.value;
-                                    dictionary[[stack top][@"key"]] = tmp;
-                                    state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                                    break;
-                            }
-                            [stack pop];
-                        }
-                        break;
-                    default:
-                        ErrorState(@"Failed to parse array in trailer");
-                        break;
-                }
+                [self inTrailerInArrayState];
                 break;
             case IN_TRAILER_IN_DICTIONARY_AFTER_UINT_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                        state = IN_TRAILER_IN_DICTIONARY_NEED_R_STATE;
-                        refGeneratedNumber = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
-                        break;
-                    case PDF_NAME_LEXEME_TYPE:
-                        dictionary[key] = [PDFValue numberValue:@(refObjectNumber)];
-                        key = [self stringFromLexeme:lexeme len:len];
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_VALUE_STATE;
-                        break;
-                    case PDF_CLOSE_DICTIONARY_LEXEME_TYPE:
-                        dictionary[key] = [PDFValue numberValue:@(refObjectNumber)];
-                        if (stack.count == 0) {
-                            state = IN_TRAILER_AFTER_DICTIONARY_STATE;
-                        } else {
-                            PDFValue *tmp = pdfValue;
-                            pdfValue = [stack top][@"value"];
-                            switch ([[stack top][@"type"] intValue]) {
-                                case 0:
-                                    array = (NSMutableArray*)pdfValue.value;
-                                    [array addObject:tmp];
-                                    state = IN_TRAILER_IN_ARRAY_STATE;
-                                    break;
-                                case 1:
-                                default:
-                                    state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                                    dictionary = (NSMutableDictionary*)pdfValue.value;
-                                    dictionary[[stack top][@"key"]] = tmp;
-                                    break;
-                            }
-                            [stack pop];
-                        }
-                        break;
-                    default:
-                        ErrorState(@"Syntaxis error in dictoinary value");
-                        break;
-                }
+                [self inTrailerInDictionaryAfterUINTState];
                 break;
             case IN_TRAILER_IN_DICTIONARY_NEED_R_STATE:
-                switch (type) {
-                    case PDF_R_KEYWORD_LEXEME:
-                        dictionary[key] = [PDFValue pdfRefValueWithObjectNumber:refObjectNumber generatedNumber:refGeneratedNumber];
-                        state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
-                        break;
-                    default:
-                        ErrorState(@"Failed to parse reference in dictionary in trailer");
-                        break;
-                }
+                [self inTrailerInDictionaryNeedRState];
                 break;
             case IN_TRAILER_AFTER_DICTIONARY_STATE:
-                switch (type) {
-                    case PDF_STARTXREF_KEYWORD_LEXEME_TYPE:
-                        state = AFTER_STARTXREF_STATE;
-                        break;
-                    default:
-                        ErrorState(@"After trailer dictionary must be startxref keyword");
-                        break;
-                }
+                [self inTrailerAfterDictionaryState];
                 break;
             case AFTER_STARTXREF_STATE:
-                switch (type) {
-                    case PDF_UINT_NUMBER_TYPE:
-                        trailerOffset = [self unsignedIntegerFromUINTLexeme:lexeme len:len];
-                        state = AFTER_TRAILER_OFFSET_STATE;
-                        break;
-                    default:
-                        ErrorState(@"After startxref keyword must be unsigned integer number");
-                        break;
-                }
+                [self afterStartXRefState];
                 break;
             case AFTER_TRAILER_OFFSET_STATE:
-                switch (type) {
-                    case PDF_COMMENT_LEXEME_TYPE:
-                    {
-                        if (len == 5 && strncmp(lexeme, "%%EOF", len) == 0) {
-                            state = END_STATE;
-                            pdfObj = [PDFObject pdfObjectWithXRefTable:xrefTable trailer:dictionary offset:trailerOffset];
-                        } else {
-                            ErrorState(@"After trailer offset must be comment '%%EOF'");
-                        }
-                        break;
-                    }
-                    default:
-                        ErrorState(@"After trailer offset must be comment '%%EOF'");
-                        break;
-                }
+                [self afterTrailerOffsetState];
                 break;
             default:
                 break;
         }
     }
     
-    return pdfObj;
-}
-
-- (NSObject*)nextSyntaxObject
-{
-    enum PDFSyntaxAnalyzerStates state = BEGIN_STATE;
-    return [self nextSyntaxObjectIterWithState:state];
+    return _pdfObj;
 }
 
 - (NSString*)stringFromLexeme:(const char*)lexeme len:(NSUInteger)len
