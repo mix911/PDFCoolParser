@@ -119,31 +119,31 @@ enum PDFSyntaxAnalyzerStates
         for (int i = BEGIN_STATE; i < COUNT_OF_STATES; ++i) {
             [_statesTable addObject:@(0)];
         }
-        AddToTable(BEGIN_STATE, beginState);
-        AddToTable(OBJ_OBJECT_NUMBER_STATE, objObjectNumberState);
-        AddToTable(OBJ_GENERATED_NUMBER_STATE, objGeneratedNumberState);
-        AddToTable(OBJ_KEYWORD_STATE, objKeywordState);
-        AddToTable(IN_OBJECT_AFTER_NUMBER_STATE, inObjectAfterNumberState);
-        AddToTable(IN_OBJECT_AFTER_NUMBER_NEED_R_STATE, inObjectAfterNumberNeedRState);
-        AddToTable(IN_OBJECT_AFTER_VALUE_STATE, inObjectAfterValueState);
-        AddToTable(IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE, inObjectInDictionaryWaitKeyState);
-        AddToTable(IN_OBJECT_IN_DICTIONARY_WAIT_VALUE_STATE, inObjectInDictionaryWaitValueState);
-        AddToTable(IN_OBJECT_IN_DICTIONARY_AFTER_UINT_STATE, inObjectInDictionaryAfterUINTState);
-        AddToTable(IN_OBJECT_IN_DICTIONARY_NEED_R_STATE, inObjectInDictionaryNeedRState);
-        AddToTable(IN_OBJECT_IN_ARRAY_STATE, inObjectInArrayState);
-        AddToTable(IN_OBJECT_AFTER_STREAM_STATE, inObjectAfterStreamState);
-        AddToTable(IN_OBJECT_AFTER_ENDSTREAM_STATE, inObjectAfterEndstreamState);
-        AddToTable(IN_XREF_NEED_FIRST_OBJECT_NUMBER_STATE, inXRefNeedFirstObjectNumberState);
-        AddToTable(IN_XREF_AFTER_FIRST_OBJECT_NUMBER_STATE,inXRefAfterFirstObjectNumberState);
-        AddToTable(IN_TRAILER_STATE, inTrailerState);
-        AddToTable(IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE, inTrailerInDictionaryWaitKeyState);
-        AddToTable(IN_TRAILER_IN_DICTIONARY_WAIT_VALUE_STATE, inTrailerInDictionaryWaitValueState);
-        AddToTable(IN_TRAILER_IN_DICTIONARY_AFTER_UINT_STATE, inTrailerInDictionaryAfterUINTState);
-        AddToTable(IN_TRAILER_IN_DICTIONARY_NEED_R_STATE, inTrailerInDictionaryNeedRState);
-        AddToTable(IN_TRAILER_IN_ARRAY_STATE, inTrailerInArrayState);
-        AddToTable(IN_TRAILER_AFTER_DICTIONARY_STATE, inTrailerAfterDictionaryState);
-        AddToTable(AFTER_STARTXREF_STATE, afterStartXRefState);
-        AddToTable(AFTER_TRAILER_OFFSET_STATE, afterTrailerOffsetState);
+        AddToTable(BEGIN_STATE,                                 beginState);
+        AddToTable(OBJ_OBJECT_NUMBER_STATE,                     objObjectNumberState);
+        AddToTable(OBJ_GENERATED_NUMBER_STATE,                  objGeneratedNumberState);
+        AddToTable(OBJ_KEYWORD_STATE,                           objKeywordState);
+        AddToTable(IN_OBJECT_AFTER_NUMBER_STATE,                inObjectAfterNumberState);
+        AddToTable(IN_OBJECT_AFTER_NUMBER_NEED_R_STATE,         inObjectAfterNumberNeedRState);
+        AddToTable(IN_OBJECT_AFTER_VALUE_STATE,                 inObjectAfterValueState);
+        AddToTable(IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE,      inObjectInDictionaryWaitKeyState);
+        AddToTable(IN_OBJECT_IN_DICTIONARY_WAIT_VALUE_STATE,    inObjectInDictionaryWaitValueState);
+        AddToTable(IN_OBJECT_IN_DICTIONARY_AFTER_UINT_STATE,    inObjectInDictionaryAfterUINTState);
+        AddToTable(IN_OBJECT_IN_DICTIONARY_NEED_R_STATE,        inObjectInDictionaryNeedRState);
+        AddToTable(IN_OBJECT_IN_ARRAY_STATE,                    inObjectInArrayState);
+        AddToTable(IN_OBJECT_AFTER_STREAM_STATE,                inObjectAfterStreamState);
+        AddToTable(IN_OBJECT_AFTER_ENDSTREAM_STATE,             inObjectAfterEndstreamState);
+        AddToTable(IN_XREF_NEED_FIRST_OBJECT_NUMBER_STATE,      inXRefNeedFirstObjectNumberState);
+        AddToTable(IN_XREF_AFTER_FIRST_OBJECT_NUMBER_STATE,     inXRefAfterFirstObjectNumberState);
+        AddToTable(IN_TRAILER_STATE,                            inTrailerState);
+        AddToTable(IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE,     inTrailerInDictionaryWaitKeyState);
+        AddToTable(IN_TRAILER_IN_DICTIONARY_WAIT_VALUE_STATE,   inTrailerInDictionaryWaitValueState);
+        AddToTable(IN_TRAILER_IN_DICTIONARY_AFTER_UINT_STATE,   inTrailerInDictionaryAfterUINTState);
+        AddToTable(IN_TRAILER_IN_DICTIONARY_NEED_R_STATE,       inTrailerInDictionaryNeedRState);
+        AddToTable(IN_TRAILER_IN_ARRAY_STATE,                   inTrailerInArrayState);
+        AddToTable(IN_TRAILER_AFTER_DICTIONARY_STATE,           inTrailerAfterDictionaryState);
+        AddToTable(AFTER_STARTXREF_STATE,                       afterStartXRefState);
+        AddToTable(AFTER_TRAILER_OFFSET_STATE,                  afterTrailerOffsetState);
     }
     return self;
 }
