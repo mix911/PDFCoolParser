@@ -94,7 +94,7 @@ enum PDFLexicalAnalyzerStates
 
 @synthesize errorMessage = _errorMessage;
 
-- (instancetype)init
+- (id)init
 {
     self = [super init];
     if (self) {
@@ -127,6 +127,12 @@ enum PDFLexicalAnalyzerStates
         AddToTable(IN_UINTEGRAL_NUMBER_PART_STATE, inUIntegralNumberPartState);
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [_statesTable release];
+    [super dealloc];
 }
 
 - (void)beginState
