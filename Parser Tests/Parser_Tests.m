@@ -14,20 +14,7 @@
 #import "PDFRef.h"
 #import "PDFXRefTable.h"
 #import "PDFXRefSubSection.h"
-
-#define PDFNum(x) [PDFValue numberValue:@(x)]
-#define PDFHStr(s) [PDFValue hexStringValue:s]
-#define PDFStr(s) [PDFValue stringValue:s]
-#define PDFRef(o, g) [PDFValue refValueWithObjectNumber:o generatedNumber:g]
-#define PDFFalse [PDFValue falseValue]
-#define PDFTrue [PDFValue trueValue]
-#define PDFNull [PDFValue nullValue]
-#define __PDFArrayHelper__(constNil, ...)
-#define PDFArray(...) [PDFValue arrayValue:[NSMutableArray arrayWithObjects:__VA_ARGS__, nil]]
-#define PDFArrayNil [PDFValue arrayValue:[NSMutableArray array]]
-#define PDFDictNil [PDFValue dictionaryValue:[NSMutableDictionary dictionary]]
-#define PDFDict(dict) [PDFValue dictionaryValue:[NSMutableDictionary dictionaryWithDictionary:dict]]
-#define PDFName(n) [PDFValue nameValue:n]
+#import "PDFValue.h"
 
 static char text[] =    "(Hello world) ( This string has an end-of-line at the end of it .\r"
                         ")\r"

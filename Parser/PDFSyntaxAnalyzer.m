@@ -10,8 +10,6 @@
 
 #import "PDFLexicalAnalyzer.h"
 #import "PDFObject.h"
-#import "PDFTrue.h"
-#import "PDFFalse.h"
 #import "PDFRef.h"
 #import "PDFStack.h"
 #import "PDFXRefTable.h"
