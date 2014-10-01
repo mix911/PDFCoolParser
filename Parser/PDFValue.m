@@ -61,7 +61,7 @@
     return [self pdfValueWithValue:[NSNull null] type:PDF_NULL_VALUE_TYPE];
 }
 
-+ (PDFValue*)pdfRefValueWithObjectNumber:(NSUInteger)objectNumber generatedNumber:(NSUInteger)generatedNumber
++ (PDFValue*)refValueWithObjectNumber:(NSUInteger)objectNumber generatedNumber:(NSUInteger)generatedNumber
 {
     return [self pdfValueWithValue:[PDFRef pdfRefWithObjectNumber:objectNumber generatedNumber:generatedNumber] type:PDF_REF_VALUE_TYPE];
 }

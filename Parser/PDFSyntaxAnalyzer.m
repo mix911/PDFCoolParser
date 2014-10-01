@@ -294,7 +294,7 @@ enum PDFSyntaxAnalyzerStates
 {
     switch (_type) {
         case PDF_R_KEYWORD_LEXEME:
-            _pdfValue = [PDFValue pdfRefValueWithObjectNumber:_refObjectNumber generatedNumber:_refGeneratedNumber];
+            _pdfValue = [PDFValue refValueWithObjectNumber:_refObjectNumber generatedNumber:_refGeneratedNumber];
             _state = IN_OBJECT_AFTER_VALUE_STATE;
             break;
         default:
@@ -535,7 +535,7 @@ enum PDFSyntaxAnalyzerStates
 {
     switch (_type) {
         case PDF_R_KEYWORD_LEXEME:
-            _dictionary[_key] = [PDFValue pdfRefValueWithObjectNumber:_refObjectNumber generatedNumber:_refGeneratedNumber];
+            _dictionary[_key] = [PDFValue refValueWithObjectNumber:_refObjectNumber generatedNumber:_refGeneratedNumber];
             _state = IN_OBJECT_IN_DICTIONARY_WAIT_KEY_STATE;
             break;
         default:
@@ -800,7 +800,7 @@ enum PDFSyntaxAnalyzerStates
 {
     switch (_type) {
         case PDF_R_KEYWORD_LEXEME:
-            _dictionary[_key] = [PDFValue pdfRefValueWithObjectNumber:_refObjectNumber generatedNumber:_refGeneratedNumber];
+            _dictionary[_key] = [PDFValue refValueWithObjectNumber:_refObjectNumber generatedNumber:_refGeneratedNumber];
             _state = IN_TRAILER_IN_DICTIONARY_WAIT_KEY_STATE;
             break;
         default:

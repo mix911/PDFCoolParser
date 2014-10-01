@@ -102,7 +102,7 @@
                          [NSMutableDictionary dictionaryWithDictionary:
                           @{
                             @"/Type" : [PDFValue nameValue:@"/Catalog"],
-                            @"/Pages": [PDFValue pdfRefValueWithObjectNumber:1 generatedNumber:0]
+                            @"/Pages": [PDFValue refValueWithObjectNumber:1 generatedNumber:0]
                             }]]];
     [self subTestObject:10
                        :0
@@ -110,7 +110,7 @@
                          [NSMutableDictionary dictionaryWithDictionary:
                           @{
                             @"/Type" : [PDFValue nameValue:@"/Page"],
-                            @"/Parent" : [PDFValue pdfRefValueWithObjectNumber:1 generatedNumber:0],
+                            @"/Parent" : [PDFValue refValueWithObjectNumber:1 generatedNumber:0],
                             @"/Resources" : [PDFValue dictionaryValue:
                                              [NSMutableDictionary dictionaryWithDictionary:
                                               @{
@@ -125,13 +125,13 @@
                                                 @"/ExtGState" : [PDFValue dictionaryValue:
                                                                  [NSMutableDictionary dictionaryWithDictionary:
                                                                   @{
-                                                                    @"/G0" : [PDFValue pdfRefValueWithObjectNumber:11 generatedNumber:0]
+                                                                    @"/G0" : [PDFValue refValueWithObjectNumber:11 generatedNumber:0]
                                                                     }]],
                                                 @"/Font" : [PDFValue dictionaryValue:
                                                             [NSMutableDictionary dictionaryWithDictionary:
                                                              @{
-                                                               @"/F0" : [PDFValue pdfRefValueWithObjectNumber:12 generatedNumber:0],
-                                                               @"/F1" : [PDFValue pdfRefValueWithObjectNumber:13 generatedNumber:0]
+                                                               @"/F0" : [PDFValue refValueWithObjectNumber:12 generatedNumber:0],
+                                                               @"/F1" : [PDFValue refValueWithObjectNumber:13 generatedNumber:0]
                                                                }]]
                                                 }]],
                             @"/MediaBox" : [PDFValue arrayValue:[NSMutableArray arrayWithObjects:
@@ -140,7 +140,7 @@
                                                                  [PDFValue numberValue:@(612)],
                                                                  [PDFValue numberValue:@(792)],
                                                                  nil]],
-                            @"/Contents" : [PDFValue pdfRefValueWithObjectNumber:14 generatedNumber:0]
+                            @"/Contents" : [PDFValue refValueWithObjectNumber:14 generatedNumber:0]
                             }]]];
     [self subTestObjectNoStream:14
                                :0

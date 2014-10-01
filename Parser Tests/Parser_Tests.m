@@ -15,6 +15,20 @@
 #import "PDFXRefTable.h"
 #import "PDFXRefSubSection.h"
 
+#define PDFNum(x) [PDFValue numberValue:@(x)]
+#define PDFHStr(s) [PDFValue hexStringValue:s]
+#define PDFStr(s) [PDFValue stringValue:s]
+#define PDFRef(o, g) [PDFValue refValueWithObjectNumber:o generatedNumber:g]
+#define PDFFalse [PDFValue falseValue]
+#define PDFTrue [PDFValue trueValue]
+#define PDFNull [PDFValue nullValue]
+#define __PDFArrayHelper__(constNil, ...)
+#define PDFArray(...) [PDFValue arrayValue:[NSMutableArray arrayWithObjects:__VA_ARGS__, nil]]
+#define PDFArrayNil [PDFValue arrayValue:[NSMutableArray array]]
+#define PDFDictNil [PDFValue dictionaryValue:[NSMutableDictionary dictionary]]
+#define PDFDict(dict) [PDFValue dictionaryValue:[NSMutableDictionary dictionaryWithDictionary:dict]]
+#define PDFName(n) [PDFValue nameValue:n]
+
 static char text[] =    "(Hello world) ( This string has an end-of-line at the end of it .\r"
                         ")\r"
                         "( So does this one .\\n\\\\\\t\\(() )\r"
@@ -289,98 +303,47 @@ static char sectionData[] = "0000000016 00000 n\r"
     [self subTestComment:@"%PDF-1.4"];
     [self subTestComment:@"%Ã¢Ã£ÃÃ"];
     [self subTestObject:326 :0 :nil];
-    [self subTestObject:326 :0 :[PDFValue numberValue:@123]];
-    [self subTestObject:326 :0 :[PDFValue hexStringValue:@"<12aB>"]];
-    [self subTestObject:326 :0 :[PDFValue stringValue:@"(333 () \\( )"]];
-    [self subTestObject:326 :0 :[PDFValue pdfRefValueWithObjectNumber:2 generatedNumber:3]];
-    [self subTestObject:326 :0 :[PDFValue falseValue]];
-    [self subTestObject:326 :0 :[PDFValue trueValue]];
-    [self subTestObject:326 :0 :[PDFValue nullValue]];
-    [self subTestObject:326 :0 :[PDFValue arrayValue:[NSMutableArray arrayWithObjects:
-                                                        [PDFValue numberValue:@1],
-                                                        [PDFValue numberValue:@2],
-                                                        [PDFValue numberValue:@3],
-                                                        [PDFValue stringValue:@"(ololo)"],
-                                                        [PDFValue numberValue:@(-4)],
-                                                        [PDFValue trueValue],
-                                                        [PDFValue falseValue],
-                                                        nil]]];
-    [self subTestObject:326 :0 :[PDFValue arrayValue:[NSMutableArray arrayWithObjects:
-                                                      [PDFValue arrayValue:
-                                                       [NSMutableArray arrayWithObjects:
-                                                        [PDFValue nullValue],
-                                                        [PDFValue numberValue:@3],
-                                                        [PDFValue arrayValue:[NSMutableArray array]],
-                                                        nil]],
-                                                      [PDFValue numberValue:@1],
-                                                      [PDFValue arrayValue:[NSMutableArray array]],
-                                                      nil]]];
+    [self subTestObject:326 :0 :PDFNum(123)];
+    [self subTestObject:326 :0 :PDFHStr(@"<12aB>")];
+    [self subTestObject:326 :0 :PDFStr(@"(333 () \\( )")];
+    [self subTestObject:326 :0 :PDFRef(2, 3)];
+    [self subTestObject:326 :0 :PDFFalse];
+    [self subTestObject:326 :0 :PDFTrue];
+    [self subTestObject:326 :0 :PDFNull];
+    [self subTestObject:326 :0 :PDFArray(PDFNum(1), PDFNum(2), PDFNum(3), PDFStr(@"(ololo)"), PDFNum(-4), PDFTrue, PDFFalse)];
+    [self subTestObject:326 :0 :PDFArray(
+                                          PDFArray(
+                                                   PDFNull,
+                                                   PDFNum(3),
+                                                   PDFArrayNil),
+                                          PDFNum(1),
+                                          PDFArrayNil)];
+    [self subTestObject:326 :0 :PDFDict((@{ @"/key1" : PDFRef(1, 2), @"/key3" : PDFStr(@"(ololo)"), @"/key2" : PDFRef(3, 4), @"/key4" : PDFHStr(@"<abc3>") }))];
+    [self subTestObject:326 :0 :PDFDict((@{ @"/key1" : PDFNum(0) }))];
+    [self subTestObject:326 :0 :PDFDict((@{ @"/key1" : PDFNum(1), @"/key2" : PDFNum(2), @"/key3" : PDFRef(3, 4), @"/key4" : PDFNum(5) }))];
     [self subTestObject:326
                        :0
-                       :[PDFValue dictionaryValue:
-                         [NSMutableDictionary dictionaryWithDictionary:
-                          @{
-                            @"/key1" : [PDFValue pdfRefValueWithObjectNumber:1 generatedNumber:2],
-                            @"/key3" : [PDFValue stringValue:@"(ololo)"],
-                            @"/key2" : [PDFValue pdfRefValueWithObjectNumber:3 generatedNumber:4],
-                            @"/key4" : [PDFValue hexStringValue:@"<abc3>"]
-                            }]]];
+                       :PDFDict((@{
+                                   @"/key1" : PDFDict((@{
+                                                         @"/key1" : PDFStr(@"(ololo)"),
+                                                         @"/key2" : PDFArray(PDFDictNil)
+                                                        }))
+                                }))];
     [self subTestObject:326
                        :0
-                       :[PDFValue dictionaryValue:
-                         [NSMutableDictionary dictionaryWithDictionary:
-                          @{
-                            @"/key1" : [PDFValue numberValue:@0]
-                            }]]];
-    [self subTestObject:326
-                       :0
-                       :[PDFValue dictionaryValue:
-                         [NSMutableDictionary dictionaryWithDictionary:
-                          @{
-                            @"/key1" : [PDFValue numberValue:@1],
-                            @"/key2" : [PDFValue numberValue:@2],
-                            @"/key3" : [PDFValue pdfRefValueWithObjectNumber:3 generatedNumber:4],
-                            @"/key4" : [PDFValue numberValue:@5]
-                            }]]];
-    [self subTestObject:326
-                       :0
-                       :[PDFValue dictionaryValue:
-                         [NSMutableDictionary dictionaryWithDictionary:
-                          @{
-                            @"/key1" : [PDFValue dictionaryValue:
-                                         [NSMutableDictionary dictionaryWithDictionary:
-                                          @{
-                                            @"/key1" : [PDFValue stringValue:@"(ololo)"],
-                                            @"/key2" : [PDFValue arrayValue:[NSMutableArray arrayWithObjects:
-                                                                             [PDFValue dictionaryValue:[NSMutableDictionary dictionary]],
-                                                                             nil]]
-                                            }]]
-                            }]]];
-    [self subTestObject:326
-                       :0
-                       :[PDFValue dictionaryValue:
-                         [NSMutableDictionary dictionaryWithDictionary:
-                          @{
-                            @"/Length" : [PDFValue numberValue:@10]
-                            }]]
+                       :PDFDict((@{ @"/Length" : PDFNum(10) }))
                        :[NSData dataWithBytes:"1234567890" length:10]];
     [self subTestObject:325
                        :0
-                       :[PDFValue dictionaryValue:
-                         [NSMutableDictionary dictionaryWithDictionary:
-                          @{
-                            @"/Linearized" : [PDFValue numberValue:@1],
-                            @"/O" : [PDFValue numberValue:@328],
-                            @"/H" : [PDFValue arrayValue:
-                                     [NSMutableArray arrayWithObjects:
-                                      [PDFValue numberValue:@1317],
-                                      [PDFValue numberValue:@2127],
-                                      nil]],
-                            @"/L" : [PDFValue numberValue:@1119433],
-                            @"/E" : [PDFValue numberValue:@54084],
-                            @"/N" : [PDFValue numberValue:@38],
-                            @"/T" : [PDFValue numberValue:@1112814]
-                            }]]];
+                       :PDFDict((@{
+                                   @"/Linearized" : PDFNum(1),
+                                   @"/O" : PDFNum(328),
+                                   @"/H" : PDFArray(PDFNum(1317), PDFNum(2127)),
+                                   @"/L" : PDFNum(1119433),
+                                   @"/E" : PDFNum(54084),
+                                   @"/N" : PDFNum(38),
+                                   @"/T" : PDFNum(1112814)
+                                }))];
     [self subTestXRefTable:[PDFXRefTable pdfXRefTableWithSubSections:
                             @[
                               [PDFXRefSubSection pdfXRefSectionWithFirstObjectNumber:325
@@ -388,50 +351,31 @@ static char sectionData[] = "0000000016 00000 n\r"
                                                                              data:[NSData dataWithBytes:sectionData length:sizeof(sectionData)-1]]
                               ]]
                    trailer:@{
-                             @"/Size" : [PDFValue numberValue:@361],
-                             @"/Info" : [PDFValue pdfRefValueWithObjectNumber:316 generatedNumber:0],
-                             @"/Root" : [PDFValue pdfRefValueWithObjectNumber:326 generatedNumber:0],
-                             @"/Prev" : [PDFValue numberValue:@1112803],
-                             @"/ID" : [PDFValue arrayValue:
-                                       [NSMutableArray arrayWithObjects:
-                                        [PDFValue hexStringValue:@"<7a6636ff523a802804b8359a7bb65124>"],
-                                        [PDFValue hexStringValue:@"<3bc21a09cd84580eea4371ce34ffa70b>"],
-                                        nil]]
+                             @"/Size" : PDFNum(361),
+                             @"/Info" : PDFRef(316, 0),
+                             @"/Root" : PDFRef(326, 0),
+                             @"/Prev" : PDFNum(1112803),
+                             @"/ID" : PDFArray(PDFHStr(@"<7a6636ff523a802804b8359a7bb65124>"), PDFHStr(@"<3bc21a09cd84580eea4371ce34ffa70b>"))
                              }
                     offset:0];
     [self subTestObject:326
                        :0
-                       :[PDFValue dictionaryValue:
-                         [NSMutableDictionary dictionaryWithDictionary:
-                          @{
-                            @"/Type" : [PDFValue nameValue:@"/Catalog"],
-                            @"/Pages" : [PDFValue pdfRefValueWithObjectNumber:315 generatedNumber:0],
-                            @"/Metadata" : [PDFValue pdfRefValueWithObjectNumber:317 generatedNumber:0],
-                            @"/AcroForm" : [PDFValue pdfRefValueWithObjectNumber:327 generatedNumber:0],
-                            }]]];
+                       :PDFDict((@{
+                                   @"/Type" : PDFName(@"/Catalog"),
+                                   @"/Pages" : PDFRef(315, 0),
+                                   @"/Metadata" : PDFRef(317, 0),
+                                   @"/AcroForm" : PDFRef(327, 0),
+                                }))];
     [self subTestObject:327
                        :0
-                       :[PDFValue dictionaryValue:
-                         [NSMutableDictionary dictionaryWithDictionary:
-                          @{
-                            @"/Fields" : [PDFValue arrayValue:[NSMutableArray array]],
-                            @"/DR" : [PDFValue dictionaryValue:
-                                      [NSMutableDictionary dictionaryWithDictionary:
-                                       @{
-                                         @"/Font" : [PDFValue dictionaryValue:
-                                                     [NSMutableDictionary dictionaryWithDictionary:
-                                                      @{
-                                                        @"/ZaDb" : [PDFValue pdfRefValueWithObjectNumber:312 generatedNumber:0],
-                                                        @"/Helv" : [PDFValue pdfRefValueWithObjectNumber:313 generatedNumber:0]
-                                                        }]],
-                                         @"/Encoding" : [PDFValue dictionaryValue:
-                                                         [NSMutableDictionary dictionaryWithDictionary:
-                                                          @{
-                                                            @"/PDFDocEncoding" : [PDFValue pdfRefValueWithObjectNumber:314 generatedNumber:0]
-                                                            }]]
-                                         }]],
-                            @"/DA" : [PDFValue stringValue:@"(/Helv 0 Tf 0 g )"]
-                            }]]];
+                       :PDFDict((@{
+                                   @"/Fields" : PDFArrayNil,
+                                   @"/DR" : PDFDict((@{
+                                                       @"/Font" : PDFDict((@{ @"/ZaDb" : PDFRef(312, 0), @"/Helv" : PDFRef(313, 0) })),
+                                                       @"/Encoding" : PDFDict((@{ @"/PDFDocEncoding" : PDFRef(314, 0) }))
+                                                    })),
+                                   @"/DA" : PDFStr(@"(/Helv 0 Tf 0 g )")
+                                }))];
 }
 
 @end
