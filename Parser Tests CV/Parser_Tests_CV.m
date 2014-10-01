@@ -98,88 +98,68 @@
     [self subTestComment:@"%áéëÓ"];
     [self subTestObject:9
                        :0
-                       :[PDFValue dictionaryValue:
-                         [NSMutableDictionary dictionaryWithDictionary:
-                          @{
-                            @"/Type" : [PDFValue nameValue:@"/Catalog"],
-                            @"/Pages": [PDFValue refValueWithObjectNumber:1 generatedNumber:0]
-                            }]]];
+                       :PDFDict((@{
+                            @"/Type" : PDFName(@"/Catalog"),
+                            @"/Pages": PDFRef(1, 0)
+                            }))];
     [self subTestObject:10
                        :0
-                       :[PDFValue dictionaryValue:
-                         [NSMutableDictionary dictionaryWithDictionary:
-                          @{
-                            @"/Type" : [PDFValue nameValue:@"/Page"],
-                            @"/Parent" : [PDFValue refValueWithObjectNumber:1 generatedNumber:0],
-                            @"/Resources" : [PDFValue dictionaryValue:
-                                             [NSMutableDictionary dictionaryWithDictionary:
-                                              @{
-                                                @"/ProcSets" : [PDFValue arrayValue:
-                                                                [NSMutableArray arrayWithObjects:
-                                                                 [PDFValue nameValue:@"/PDF"],
-                                                                 [PDFValue nameValue:@"/Text"],
-                                                                 [PDFValue nameValue:@"/ImageB"],
-                                                                 [PDFValue nameValue:@"/ImageC"],
-                                                                 [PDFValue nameValue:@"/ImageI"],
-                                                                 nil]],
-                                                @"/ExtGState" : [PDFValue dictionaryValue:
-                                                                 [NSMutableDictionary dictionaryWithDictionary:
-                                                                  @{
-                                                                    @"/G0" : [PDFValue refValueWithObjectNumber:11 generatedNumber:0]
-                                                                    }]],
-                                                @"/Font" : [PDFValue dictionaryValue:
-                                                            [NSMutableDictionary dictionaryWithDictionary:
-                                                             @{
-                                                               @"/F0" : [PDFValue refValueWithObjectNumber:12 generatedNumber:0],
-                                                               @"/F1" : [PDFValue refValueWithObjectNumber:13 generatedNumber:0]
-                                                               }]]
-                                                }]],
-                            @"/MediaBox" : [PDFValue arrayValue:[NSMutableArray arrayWithObjects:
-                                                                 [PDFValue numberValue:@(0)],
-                                                                 [PDFValue numberValue:@(0)],
-                                                                 [PDFValue numberValue:@(612)],
-                                                                 [PDFValue numberValue:@(792)],
-                                                                 nil]],
-                            @"/Contents" : [PDFValue refValueWithObjectNumber:14 generatedNumber:0]
-                            }]]];
+                       :PDFDict((@{
+                            @"/Type" : PDFName(@"/Page"),
+                            @"/Parent" : PDFRef(1, 0),
+                            @"/Resources" : PDFDict((@{
+                                                @"/ProcSets" : PDFArray(
+                                                                 PDFName(@"/PDF"),
+                                                                 PDFName(@"/Text"),
+                                                                 PDFName(@"/ImageB"),
+                                                                 PDFName(@"/ImageC"),
+                                                                 PDFName(@"/ImageI")),
+                                                @"/ExtGState" : PDFDict((@{
+                                                                    @"/G0" : PDFRef(11, 0)
+                                                                    })),
+                                                @"/Font" : PDFDict((@{
+                                                               @"/F0" : PDFRef(12, 0),
+                                                               @"/F1" : PDFRef(13, 0)
+                                                               }))
+                                                })),
+                            @"/MediaBox" : PDFArray(
+                                                     PDFNum(0),
+                                                     PDFNum(0),
+                                                     PDFNum(612),
+                                                     PDFNum(792)),
+                            @"/Contents" : PDFRef(14, 0)
+                            }))];
     [self subTestObjectNoStream:14
                                :0
-                               :[PDFValue dictionaryValue:
-                                 [NSMutableDictionary dictionaryWithDictionary:
-                                  @{
-                                    @"/Filter" : [PDFValue nameValue:@"/FlateDecode"],
-                                    @"/Length" : [PDFValue numberValue:@(6480)]
-                                    }]]];
+                               :PDFDict((@{
+                                    @"/Filter" : PDFName(@"/FlateDecode"),
+                                    @"/Length" : PDFNum(6480)
+                                    }))];
     [self subTestObjectNoStream:11
                                :0
-                               :[PDFValue dictionaryValue:
-                                 [NSMutableDictionary dictionaryWithDictionary:
-                                  @{
-                                    @"/Type": [PDFValue nameValue:@"/ExtGState"],
-                                    @"/CA"  : [PDFValue numberValue:@(1)],
-                                    @"/ca"  : [PDFValue numberValue:@(1)],
-                                    @"/LC"  : [PDFValue numberValue:@(0)],
-                                    @"/LJ"  : [PDFValue numberValue:@(0)],
-                                    @"/LW"  : [PDFValue numberValue:@(0)],
-                                    @"/ML"  : [PDFValue numberValue:@(4)],
-                                    @"/SA"  : [PDFValue trueValue],
-                                    @"/BM"  : [PDFValue nameValue:@"/Normal"]
-                                    }]]];
+                               :PDFDict((@{
+                                    @"/Type": PDFName(@"/ExtGState"),
+                                    @"/CA"  : PDFNum(1),
+                                    @"/ca"  : PDFNum(1),
+                                    @"/LC"  : PDFNum(0),
+                                    @"/LJ"  : PDFNum(0),
+                                    @"/LW"  : PDFNum(0),
+                                    @"/ML"  : PDFNum(4),
+                                    @"/SA"  : PDFTrue,
+                                    @"/BM"  : PDFName(@"/Normal")
+                                    }))];
 //    [self subTestObjectNoStream:12
 //                               :0
-//                               :[PDFValue dictionaryValue:
-//                                 [NSMutableDictionary dictionaryWithDictionary:
-//                                  @{
-//                                    @"/Type"            : [PDFValue nameValue:@"/Font"],
-//                                    @"/Subtype"         : [PDFValue nameValue:@"/Type0"],
-//                                    @"/BaseFont"        : [PDFValue nameValue:@"/CourierNewPS-BoldMT"],
-//                                    @"/Encoding"        : [PDFValue nameValue:@"/Identity-H"],
-//                                    @"/DescendantFonts" : [PDFValue arrayValue:
-//                                                           [NSMutableArray arrayWithObjects:
-//                                                            [PDFValue pdfRefValueWithObjectNumber:15 generatedNumber:0],
-//                                                            nil]],
-//                                    @"/ToUnicode"       : [PDFValue pdfRefValueWithObjectNumber:16 generatedNumber:0]
-//                                    }]]];
+//                               :PDFDict((@{
+//                                    @"/Type"            : PDFName(@"/Font"),
+//                                    @"/Subtype"         : PDFName(@"/Type0"),
+//                                    @"/BaseFont"        : PDFName(@"/CourierNewPS-BoldMT"),
+//                                    @"/Encoding"        : PDFName(@"/Identity-H"),
+//                                    @"/DescendantFonts" : PDFArray(
+//                                                            PDFRef(15, 0)
+//                                                            ),
+//                                    @"/ToUnicode"       : PDFRef(16, 0)
+//                                    }))];
 }
 
 @end
