@@ -101,40 +101,42 @@
                        :PDFDict((@{
                             @"/Type" : PDFName(@"/Catalog"),
                             @"/Pages": PDFRef(1, 0)
-                            }))];
+                        }))];
     [self subTestObject:10
                        :0
                        :PDFDict((@{
-                            @"/Type" : PDFName(@"/Page"),
-                            @"/Parent" : PDFRef(1, 0),
-                            @"/Resources" : PDFDict((@{
-                                                @"/ProcSets" : PDFArray(
-                                                                 PDFName(@"/PDF"),
-                                                                 PDFName(@"/Text"),
-                                                                 PDFName(@"/ImageB"),
-                                                                 PDFName(@"/ImageC"),
-                                                                 PDFName(@"/ImageI")),
-                                                @"/ExtGState" : PDFDict((@{
-                                                                    @"/G0" : PDFRef(11, 0)
-                                                                    })),
-                                                @"/Font" : PDFDict((@{
-                                                               @"/F0" : PDFRef(12, 0),
-                                                               @"/F1" : PDFRef(13, 0)
-                                                               }))
-                                                })),
-                            @"/MediaBox" : PDFArray(
-                                                     PDFNum(0),
-                                                     PDFNum(0),
-                                                     PDFNum(612),
-                                                     PDFNum(792)),
-                            @"/Contents" : PDFRef(14, 0)
-                            }))];
+                           @"/Type" : PDFName(@"/Page"),
+                           @"/Parent" : PDFRef(1, 0),
+                           @"/Resources" : PDFDict((@{
+                                @"/ProcSets" : PDFArray(
+                                    PDFName(@"/PDF"),
+                                    PDFName(@"/Text"),
+                                    PDFName(@"/ImageB"),
+                                    PDFName(@"/ImageC"),
+                                    PDFName(@"/ImageI")
+                                ),
+                                @"/ExtGState" : PDFDict((@{
+                                    @"/G0" : PDFRef(11, 0)
+                                })),
+                                @"/Font" : PDFDict((@{
+                                    @"/F0" : PDFRef(12, 0),
+                                    @"/F1" : PDFRef(13, 0)
+                                }))
+                              })),
+                           @"/MediaBox" : PDFArray(
+                                PDFNum(0),
+                                PDFNum(0),
+                                PDFNum(612),
+                                PDFNum(792)
+                            ),
+                           @"/Contents" : PDFRef(14, 0)
+                        }))];
     [self subTestObjectNoStream:14
                                :0
                                :PDFDict((@{
                                     @"/Filter" : PDFName(@"/FlateDecode"),
                                     @"/Length" : PDFNum(6480)
-                                    }))];
+                                }))];
     [self subTestObjectNoStream:11
                                :0
                                :PDFDict((@{
@@ -147,19 +149,17 @@
                                     @"/ML"  : PDFNum(4),
                                     @"/SA"  : PDFTrue,
                                     @"/BM"  : PDFName(@"/Normal")
-                                    }))];
-//    [self subTestObjectNoStream:12
-//                               :0
-//                               :PDFDict((@{
-//                                    @"/Type"            : PDFName(@"/Font"),
-//                                    @"/Subtype"         : PDFName(@"/Type0"),
-//                                    @"/BaseFont"        : PDFName(@"/CourierNewPS-BoldMT"),
-//                                    @"/Encoding"        : PDFName(@"/Identity-H"),
-//                                    @"/DescendantFonts" : PDFArray(
-//                                                            PDFRef(15, 0)
-//                                                            ),
-//                                    @"/ToUnicode"       : PDFRef(16, 0)
-//                                    }))];
+                                }))];
+    [self subTestObjectNoStream:12
+                               :0
+                               :PDFDict((@{
+                                    @"/Type": PDFName(@"/Fond"),
+                                    @"/Subtype": PDFName(@"/Type0"),
+                                    @"/BaseFond": PDFName(@"CourierNewPS-BoldMT"),
+                                    @"Encoding": PDFName(@"/Identity-H"),
+                                    @"DescendantFonts": PDFArray(PDFRef(15, 0)),
+                                    @"/ToUnicode": PDFRef(16, 0)
+                                }))];
 }
 
 @end
