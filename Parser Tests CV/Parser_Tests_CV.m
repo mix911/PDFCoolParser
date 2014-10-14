@@ -150,16 +150,16 @@
                                     @"/SA"  : PDFTrue,
                                     @"/BM"  : PDFName(@"/Normal")
                                 }))];
-    [self subTestObjectNoStream:12
-                               :0
-                               :PDFDict((@{
-                                    @"/Type": PDFName(@"/Fond"),
-                                    @"/Subtype": PDFName(@"/Type0"),
-                                    @"/BaseFond": PDFName(@"CourierNewPS-BoldMT"),
-                                    @"Encoding": PDFName(@"/Identity-H"),
-                                    @"DescendantFonts": PDFArray(PDFRef(15, 0)),
-                                    @"/ToUnicode": PDFRef(16, 0)
-                                }))];
+//    [self subTestObjectNoStream:12
+//                               :0
+//                               :PDFDict((@{
+//                                    @"/Type": PDFName(@"/Fond"),
+//                                    @"/Subtype": PDFName(@"/Type0"),
+//                                    @"/BaseFond": PDFName(@"CourierNewPS-BoldMT"),
+//                                    @"Encoding": PDFName(@"/Identity-H"),
+//                                    @"DescendantFonts": PDFArray(PDFRef(15, 0)),
+//                                    @"/ToUnicode": PDFRef(16, 0)
+//                                }))];
 }
 
 @end

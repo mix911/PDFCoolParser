@@ -52,6 +52,8 @@ enum PDFSyntaxAnalyzerStates
     IN_OBJECT_IN_DICTIONARY_AFTER_UINT_STATE,
     IN_OBJECT_IN_DICTIONARY_NEED_R_STATE,
     IN_OBJECT_IN_ARRAY_STATE,
+    IN_OBJECT_IN_ARRAY_SECOND_NUMBER_STATE,
+    IN_OBJECT_IN_ARRAY_R_STATE,
     IN_OBJECT_AFTER_STREAM_STATE,
     IN_OBJECT_AFTER_ENDSTREAM_STATE,
     IN_XREF_NEED_FIRST_OBJECT_NUMBER_STATE,
@@ -129,6 +131,8 @@ enum PDFSyntaxAnalyzerStates
         AddToTable(IN_OBJECT_IN_DICTIONARY_AFTER_UINT_STATE,    inObjectInDictionaryAfterUINTState);
         AddToTable(IN_OBJECT_IN_DICTIONARY_NEED_R_STATE,        inObjectInDictionaryNeedRState);
         AddToTable(IN_OBJECT_IN_ARRAY_STATE,                    inObjectInArrayState);
+        AddToTable(IN_OBJECT_IN_ARRAY_SECOND_NUMBER_STATE,      inObjectInArraySecondNumberState);
+        AddToTable(IN_OBJECT_IN_ARRAY_R_STATE,                  inObjectInArrayRState);
         AddToTable(IN_OBJECT_AFTER_STREAM_STATE,                inObjectAfterStreamState);
         AddToTable(IN_OBJECT_AFTER_ENDSTREAM_STATE,             inObjectAfterEndstreamState);
         AddToTable(IN_XREF_NEED_FIRST_OBJECT_NUMBER_STATE,      inXRefNeedFirstObjectNumberState);
@@ -335,10 +339,50 @@ enum PDFSyntaxAnalyzerStates
     }
 }
 
+- (void)inObjectInArraySecondNumberState
+{
+    switch (_type) {
+        case PDF_UINT_NUMBER_TYPE:
+            _refGeneratedNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            _state = IN_OBJECT_IN_ARRAY_R_STATE;
+            break;
+        default:
+            [_array addObject:PDFNum(_refObjectNumber)];
+            _state = IN_OBJECT_IN_ARRAY_STATE;
+            [self inObjectInArrayState];
+            break;
+    }
+}
+
+- (void)inObjectInArrayRState
+{
+    switch (_type) {
+        case PDF_R_KEYWORD_LEXEME:
+            [_array addObject:PDFRef(_refObjectNumber, _refGeneratedNumber)];
+            _state = IN_OBJECT_IN_ARRAY_STATE;
+            break;
+        case PDF_UINT_NUMBER_TYPE:
+            [_array addObject:PDFNum(_refObjectNumber)];
+            _refObjectNumber = _refGeneratedNumber;
+            _refGeneratedNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            _state = IN_OBJECT_IN_ARRAY_R_STATE;
+            break;
+        default:
+            [_array addObject:PDFNum(_refObjectNumber)];
+            [_array addObject:PDFNum(_refGeneratedNumber)];
+            _state = IN_OBJECT_IN_ARRAY_STATE;
+            [self inObjectInArrayState];
+            break;
+    }
+}
+
 - (void)inObjectInArrayState
 {
     switch (_type) {
         case PDF_UINT_NUMBER_TYPE:
+            _refObjectNumber = [self unsignedIntegerFromUINTLexeme:_lexeme len:_len];
+            _state = IN_OBJECT_IN_ARRAY_SECOND_NUMBER_STATE;
+            break;
         case PDF_INT_NUMBER_TYPE:
         case PDF_NUMBER_LEXEME_TYPE:
             [_array addObject:[self numberValueFromLexeme:_lexeme len:_len]];
