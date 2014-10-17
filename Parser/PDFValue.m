@@ -66,6 +66,50 @@
     return [self pdfValueWithValue:[PDFRef pdfRefWithObjectNumber:objectNumber generatedNumber:generatedNumber] type:PDF_REF_VALUE_TYPE];
 }
 
++ (PDFValue*)valueWithObject:(NSObject *)object
+{
+    // TODO: только для совместимости
+    if ([object isKindOfClass:[PDFValue class]]) {
+        return (PDFValue*)[object retain];
+    }
+    // Если это словарь
+    if ([object isKindOfClass:[NSDictionary class]]) {
+        NSDictionary* dict = (NSDictionary*)object;
+        NSMutableDictionary* mutDict = [NSMutableDictionary dictionary];
+        for (NSString *key in [dict keyEnumerator]) {
+            mutDict[key] = [PDFValue valueWithObject:dict[key]];
+        }
+        return [PDFValue dictionaryValue:mutDict];
+    }
+    // Если это массив
+    if ([object isKindOfClass:[NSArray class]]) {
+        NSArray* array = (NSArray*)object;
+        NSMutableArray* mutArray = [NSMutableArray array];
+        for (NSObject* obj in array) {
+            [mutArray addObject:[PDFValue valueWithObject:obj]];
+        }
+        return [PDFValue arrayValue:mutArray];
+    }
+    // Если это число
+    if ([object isKindOfClass:[NSNumber class]]) {
+        return [PDFValue numberValue:(NSNumber*)object];
+    }
+    // Если это строка
+    if ([object isKindOfClass:[NSString class]]) {
+        NSString* str = (NSString*)object;
+        switch ([str characterAtIndex:0]) {
+            case '/':
+                return [PDFValue nameValue:str];
+            case '(':
+                return [PDFValue stringValue:str];
+            default:
+                NSAssert(false, @"Undefined!!!");
+                break;
+        }
+    }
+    return nil;
+}
+
 - (id)initValueWithValue:(NSObject *)value type:(enum PDFValueTypes)type
 {
     self = [super init];

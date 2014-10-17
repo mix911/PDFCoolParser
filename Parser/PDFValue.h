@@ -36,6 +36,8 @@ enum PDFValueTypes
 + (PDFValue*)nullValue;
 + (PDFValue*)refValueWithObjectNumber:(NSUInteger)objectNumber generatedNumber:(NSUInteger)generatedNumber;
 
++ (PDFValue*)valueWithObject:(NSObject*)object;
+
 - (id)initValueWithValue:(NSObject*)value type:(enum PDFValueTypes)type;
 
 @property (readonly, retain) NSObject *value;
