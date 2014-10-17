@@ -947,6 +947,7 @@ enum PDFSyntaxAnalyzerStates
 {
     NSString *s = [[NSString alloc] initWithData:[NSData dataWithBytes:lexeme length:len] encoding:NSASCIIStringEncoding];
     NSNumberFormatter *formater = [[NSNumberFormatter alloc] init];
+    [formater setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
     [formater setNumberStyle:NSNumberFormatterNoStyle];
     NSNumber *res = [formater numberFromString:s];
     [formater release];
