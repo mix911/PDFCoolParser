@@ -71,8 +71,9 @@
     XCTAssertEqualObjects(srcObj, tmpObj, @"");
 }
 
-- (void)subTestObject:(NSUInteger)objectNumber :(NSUInteger)generatedNumber :(PDFValue*)value :(NSData*)stream
+- (void)subTestObject:(NSUInteger)objectNumber :(NSUInteger)generatedNumber :(NSObject*)object :(NSData*)stream
 {
+    PDFValue *value = [PDFValue valueWithObject:object];
     PDFObject* srcObj = [_syntaxAnalyzer nextSyntaxObject];
     if (srcObj == nil) {
         XCTAssert(NO, @"Error: %@", _syntaxAnalyzer.errorMessage);

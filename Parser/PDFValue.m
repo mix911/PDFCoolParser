@@ -102,6 +102,8 @@
                 return [PDFValue nameValue:str];
             case '(':
                 return [PDFValue stringValue:str];
+            case '<':
+                return [PDFValue hexStringValue:str];
             default:
                 NSAssert(false, @"Undefined!!!");
                 break;

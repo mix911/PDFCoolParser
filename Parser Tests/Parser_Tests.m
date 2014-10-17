@@ -252,8 +252,9 @@ static char sectionData[] = "0000000016 00000 n\r"
     XCTAssertEqualObjects([_syntaxAnalyzer nextSyntaxObject], [PDFObject pdfComment:comment], @"");
 }
 
-- (void)subTestObject:(NSUInteger)objectNumber :(NSUInteger)generatedNumber :(PDFValue*)value
+- (void)subTestObject:(NSUInteger)objectNumber :(NSUInteger)generatedNumber :(NSObject*)object
 {
+    PDFValue *value = [PDFValue valueWithObject:object];
     PDFObject* srcObj = [_syntaxAnalyzer nextSyntaxObject];
     if (srcObj == nil) {
         XCTAssert(NO, @"Error: %@", _syntaxAnalyzer.errorMessage);
@@ -263,8 +264,9 @@ static char sectionData[] = "0000000016 00000 n\r"
     XCTAssertEqualObjects(srcObj, tmpObj, @"");
 }
 
-- (void)subTestObject:(NSUInteger)objectNumber :(NSUInteger)generatedNumber :(PDFValue*)value :(NSData*)stream
+- (void)subTestObject:(NSUInteger)objectNumber :(NSUInteger)generatedNumber :(NSObject*)object :(NSData*)stream
 {
+    PDFValue *value = [PDFValue valueWithObject:object];
     PDFObject* srcObj = [_syntaxAnalyzer nextSyntaxObject];
     if (srcObj == nil) {
         XCTAssert(NO, @"Error: %@", _syntaxAnalyzer.errorMessage);
@@ -292,63 +294,57 @@ static char sectionData[] = "0000000016 00000 n\r"
 {
     [self subTestComment:@"%PDF-1.4"];
     [self subTestComment:@"%Ã¢Ã£ÃÃ"];
-    TO(326, 0, PDFDict((@{
-        @"/Key" : PDFArray(PDFNum(1), PDFNum(2), PDFRef(3, 4), PDFNum(5), PDFNum(6), PDFName(@"/labuda"))
-    })));
-    [self subTestObject:326 :0 :PDFDict((@{
-                                    @"/Key" : PDFArray(PDFNum(1))
-                                }))];
-    [self subTestObject:326 :0 :PDFDict((@{
-                                    @"/Key" : PDFArray(PDFNum(1), PDFNum(2))
-                                }))];
-    [self subTestObject:326 :0 :PDFDict((@{
-                                    @"/Key" : PDFArray(PDFNum(1), PDFRef(2, 3))
-                                }))];
-    [self subTestObject:326 :0 :PDFDict((@{
-                                    @"/Key" : PDFArray(PDFRef(1, 2))
-                                }))];
+    [self subTestObject:326 :0 :@{
+        @"/Key" : @[@(1), @(2), PDFRef(3, 4), @(5), @(6), @"/labuda"]
+    }];
+    [self subTestObject:326 :0 :@{
+                                  @"/Key" : @[@(1)]
+                                }];
+    [self subTestObject:326 :0 :@{
+                                    @"/Key" : @[@(1), @(2)]
+                                }];
+    [self subTestObject:326 :0 :@{
+                                    @"/Key" : @[@(1), PDFRef(2, 3)]
+                                }];
+    [self subTestObject:326 :0 :@{
+                                    @"/Key" : @[PDFRef(1, 2)]
+                                }];
     [self subTestObject:326 :0 :nil];
-    [self subTestObject:326 :0 :PDFNum(123)];
-    [self subTestObject:326 :0 :PDFHStr(@"<12aB>")];
-    [self subTestObject:326 :0 :PDFStr(@"(333 () \\( )")];
+    [self subTestObject:326 :0 :@(123)];
+    [self subTestObject:326 :0 :@"<12aB>"];
+    [self subTestObject:326 :0 :@"(333 () \\( )"];
     [self subTestObject:326 :0 :PDFRef(2, 3)];
     [self subTestObject:326 :0 :PDFFalse];
     [self subTestObject:326 :0 :PDFTrue];
     [self subTestObject:326 :0 :PDFNull];
-    [self subTestObject:326 :0 :PDFArray(PDFNum(1), PDFNum(2), PDFNum(3), PDFStr(@"(ololo)"), PDFNum(-4), PDFTrue, PDFFalse)];
-    [self subTestObject:326 :0 :PDFArray(
-                                          PDFArray(
-                                                   PDFNull,
-                                                   PDFNum(3),
-                                                   PDFArrayNil),
-                                          PDFNum(1),
-                                          PDFArrayNil)];
-    [self subTestObject:326 :0 :PDFDict((@{ @"/key1" : PDFRef(1, 2), @"/key3" : PDFStr(@"(ololo)"), @"/key2" : PDFRef(3, 4), @"/key4" : PDFHStr(@"<abc3>") }))];
-    [self subTestObject:326 :0 :PDFDict((@{ @"/key1" : PDFNum(0) }))];
-    [self subTestObject:326 :0 :PDFDict((@{ @"/key1" : PDFNum(1), @"/key2" : PDFNum(2), @"/key3" : PDFRef(3, 4), @"/key4" : PDFNum(5) }))];
+    [self subTestObject:326 :0 :@[@(1), @(2), @(3), @"(ololo)", @(-4), PDFTrue, PDFFalse]];
+    [self subTestObject:326 :0 :@[ @[ PDFNull, @(3), @[] ], @(1), @[] ]];
+    [self subTestObject:326 :0 :@{ @"/key1" : PDFRef(1, 2), @"/key3" : @"(ololo)", @"/key2" : PDFRef(3, 4), @"/key4" : @"<abc3>" }];
+    [self subTestObject:326 :0 :@{ @"/key1" : @(0) }];
+    [self subTestObject:326 :0 :@{ @"/key1" : @(1), @"/key2" : @(2), @"/key3" : PDFRef(3, 4), @"/key4" : @(5) }];
     [self subTestObject:326
                        :0
-                       :PDFDict((@{
-                                   @"/key1" : PDFDict((@{
-                                                         @"/key1" : PDFStr(@"(ololo)"),
-                                                         @"/key2" : PDFArray(PDFDictNil)
-                                                        }))
-                                }))];
+                       :@{
+                           @"/key1" : @{
+                                        @"/key1" : @"(ololo)",
+                                        @"/key2" : @[@{}]
+                                    }
+                        }];
     [self subTestObject:326
                        :0
-                       :PDFDict((@{ @"/Length" : PDFNum(10) }))
+                       :@{ @"/Length" : @(10) }
                        :[NSData dataWithBytes:"1234567890" length:10]];
     [self subTestObject:325
                        :0
-                       :PDFDict((@{
-                                   @"/Linearized" : PDFNum(1),
-                                   @"/O" : PDFNum(328),
-                                   @"/H" : PDFArray(PDFNum(1317), PDFNum(2127)),
-                                   @"/L" : PDFNum(1119433),
-                                   @"/E" : PDFNum(54084),
-                                   @"/N" : PDFNum(38),
-                                   @"/T" : PDFNum(1112814)
-                                }))];
+                       :@{
+                           @"/Linearized" : @(1),
+                           @"/O" : @(328),
+                           @"/H" : @[@(1317), @(2127)],
+                           @"/L" : @(1119433),
+                           @"/E" : @(54084),
+                           @"/N" : @(38),
+                           @"/T" : @(1112814)
+                        }];
     [self subTestXRefTable:[PDFXRefTable pdfXRefTableWithSubSections:
                             @[
                               [PDFXRefSubSection pdfXRefSectionWithFirstObjectNumber:325
@@ -365,22 +361,22 @@ static char sectionData[] = "0000000016 00000 n\r"
                     offset:0];
     [self subTestObject:326
                        :0
-                       :PDFDict((@{
-                                   @"/Type" : PDFName(@"/Catalog"),
-                                   @"/Pages" : PDFRef(315, 0),
-                                   @"/Metadata" : PDFRef(317, 0),
-                                   @"/AcroForm" : PDFRef(327, 0),
-                                }))];
+                       :@{
+                           @"/Type" : @"/Catalog",
+                           @"/Pages" : PDFRef(315, 0),
+                           @"/Metadata" : PDFRef(317, 0),
+                           @"/AcroForm" : PDFRef(327, 0),
+                        }];
     [self subTestObject:327
                        :0
-                       :PDFDict((@{
-                                   @"/Fields" : PDFArrayNil,
-                                   @"/DR" : PDFDict((@{
-                                                       @"/Font" : PDFDict((@{ @"/ZaDb" : PDFRef(312, 0), @"/Helv" : PDFRef(313, 0) })),
-                                                       @"/Encoding" : PDFDict((@{ @"/PDFDocEncoding" : PDFRef(314, 0) }))
-                                                    })),
-                                   @"/DA" : PDFStr(@"(/Helv 0 Tf 0 g )")
-                                }))];
+                       :@{
+                          @"/Fields" : @[],
+                           @"/DR" : @{
+                                       @"/Font" : @{ @"/ZaDb" : PDFRef(312, 0), @"/Helv" : PDFRef(313, 0) },
+                                       @"/Encoding" : @{ @"/PDFDocEncoding" : PDFRef(314, 0) }
+                                    },
+                           @"/DA" : @"(/Helv 0 Tf 0 g )"
+                        }];
 }
 
 @end
